@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import { Inter as FontSans } from "next/font/google"
+import NextTopLoader from 'nextjs-toploader';
 
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { ThemeProvider } from "@/providers/theme-provider";
 import AuthProvider from "@/providers/auth-provider"
+import { Toaster } from "@/components/ui/sonner"
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -36,6 +38,8 @@ export default function RootLayout({
               disableTransitionOnChange
           >
             {children}
+            <NextTopLoader showSpinner={false} color="#16A34A" />
+            <Toaster />
           </ThemeProvider>
         </body>
       </html>

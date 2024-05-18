@@ -1,11 +1,12 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+
 import { Orders } from "@/components/dashboard/home/orders"
 import { SellerOrders } from "@/components/dashboard/home/seller-orders"
 
 export const RecentOrders = () => {
     return (
-        <Card className="lg:col-span-2">
+        <Card className="w-[300px] sm:w-full lg:col-span-2">
             <CardHeader className="px-7">
                 <CardTitle>Orders</CardTitle>
                 <CardDescription>
