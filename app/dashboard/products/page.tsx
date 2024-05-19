@@ -1,6 +1,7 @@
-import { CirclePlus } from "lucide-react"
+import { Pen } from "lucide-react"
 import Link from "next/link"
 
+import { Button } from "@/components/ui/button"
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -9,9 +10,9 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
-import { Button } from "@/components/ui/button"
+
 import { db } from "@/lib/db"
-import { BrandList } from "@/components/dashboard/brand/brand-list"
+import { ProductList } from "@/components/dashboard/products/product-list"
 
 interface Props {
   searchParams: {
@@ -21,39 +22,36 @@ interface Props {
       search: string;
   }
 };
- 
-const Brand = async ({ searchParams }: Props) => {
+
+const Products = async ({ searchParams }: Props) => {
     const {search, sort} = searchParams
     const itemsPerPage = parseInt(searchParams.perPage) || 5;  
     const currentPage = parseInt(searchParams.page) || 1;
 
-    const brands = await db.brand.findMany({
+    const products = await db.product.findMany({
         where: {
-            ...(search && {
-                name: {
-                    contains: search, mode: "insensitive"
-                }
-            })
+            ...(search && {name: {contains:search, mode: "insensitive"}})
+        },
+        include: {
+            stocks: true,
         },
         orderBy: {
             ...(sort === 'asc' && { name: 'asc' }),
             ...(sort === 'desc' && { name: 'desc' }),
+            ...(sort === 'high-to-low' && { price: 'desc' }),
+            ...(sort === 'low-to-high' && { price: 'asc' }),
         },
         skip: (currentPage - 1) * itemsPerPage,
         take: itemsPerPage,
-    })
+    });
 
-    const totalBrands = await db.brand.count({
+    const totalProducts = await db.product.count({
         where: {
-            ...(search && {
-                name: {
-                    contains: search, mode: "insensitive"
-                }
-            })
+            ...(search && {name: {contains:search, mode: "insensitive"}})
         }
     }) 
 
-    const totalPage = totalBrands / itemsPerPage
+    const totalPage = totalProducts / itemsPerPage
 
     return (
         <div className="w-full space-y-4">
@@ -65,21 +63,20 @@ const Brand = async ({ searchParams }: Props) => {
                         </BreadcrumbItem>
                         <BreadcrumbSeparator />
                         <BreadcrumbItem>
-                        <BreadcrumbPage>Brand</BreadcrumbPage>
+                        <BreadcrumbPage>Products</BreadcrumbPage>
                         </BreadcrumbItem>
                     </BreadcrumbList>
                 </Breadcrumb>
-                <Link href="/dashboard/brand/create">
+                <Link href="/dashboard/products/create">
                     <Button size="sm" className="flex items-center gap-x-2">
-                        <CirclePlus className="w-5 h-5" />
+                        <Pen className="w-5 h-5" />
                         Create
                     </Button>
                 </Link>
             </div>
-
-            <BrandList brands={brands} totalPage={totalPage} />
+            <ProductList products={products} totalPage={totalPage} />
         </div>
     )
 }
 
-export default Brand
+export default Products

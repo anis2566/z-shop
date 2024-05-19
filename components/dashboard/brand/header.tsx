@@ -1,12 +1,14 @@
 "use client"
 
-import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { useDebounce } from "@/hooks/use-debounce"
 import { SearchIcon } from "lucide-react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import queryString from "query-string"
 import { useEffect, useState } from "react"
+
+import { Input } from "@/components/ui/input"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+
+import { useDebounce } from "@/hooks/use-debounce"
 
 export const Header = () => {
     const [search, setSearch] = useState<string>("")
@@ -28,11 +30,11 @@ export const Header = () => {
     }, [searchValue, router, pathname])
 
     const handlePerPageChange = (perPage: string) => {
+        const params = Object.fromEntries(searchParams.entries());
         const url = queryString.stringifyUrl({
             url: pathname, 
             query: {
-                sort: searchParams.get("sort"),
-                search: searchParams.get("search"),
+                ...params,
                 perPage,
             }
         }, {skipNull: true, skipEmptyString: true})
@@ -41,10 +43,11 @@ export const Header = () => {
     }
 
     const handleSortChange = (sort: string) => {
+        const params = Object.fromEntries(searchParams.entries());
         const url = queryString.stringifyUrl({
             url: pathname, 
             query: {
-                search: searchParams.get("search"),
+                ...params,
                 sort
             }
         }, {skipNull: true, skipEmptyString: true})

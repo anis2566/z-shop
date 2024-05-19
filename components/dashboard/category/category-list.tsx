@@ -1,12 +1,12 @@
 "use client"
 
+import { EllipsisVertical, Eye, Pen, Trash2 } from "lucide-react"
+import Link from "next/link"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import queryString from "query-string"
 import { useMutation } from "@tanstack/react-query"
 import { toast } from "sonner"
-import {Brand} from "@prisma/client"
-import { EllipsisVertical, Eye, Pen,Trash2 } from "lucide-react"
-import Link from "next/link"
+import { Category } from "@prisma/client"
 
 import {
   Table,
@@ -17,12 +17,6 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
 import {
   AlertDialog,
@@ -35,27 +29,33 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
-import { Header } from "@/components/dashboard/brand/header"
+import { Header } from "../brand/header"
 import { PaginationComp } from "@/components/pagination-comp"
-import { DELETE_BRAND } from "@/actions/brand.action"
+import { DELETE_CATEGORY } from "@/actions/category.action"
 
-interface BrandListProps {
-    brands: Brand[];
+interface Props {
+    categories: Category[];
     totalPage: number
 }
 
-export const BrandList = ({brands, totalPage}:BrandListProps) => {
+export const CategoryList = ({ categories, totalPage }: Props) => {
 
     const pathname = usePathname()
     const router = useRouter()
-    const brandId = useSearchParams().get("brandId")
+    const categoryId = useSearchParams().get("categoryId")
 
-    const handleClick = (brandId: string) => {
+    const handleClick = (categoryId: string) => {
         const url = queryString.stringifyUrl({
             url: pathname,
             query: {
-                brandId
+                categoryId
             }
         }, { skipEmptyString: true, skipNull: true })
         
@@ -66,8 +66,8 @@ export const BrandList = ({brands, totalPage}:BrandListProps) => {
         router.push(pathname)
     }
 
-    const {mutate: deleteBrand, isPending} = useMutation({
-        mutationFn: DELETE_BRAND,
+    const {mutate: deleteCategory, isPending} = useMutation({
+        mutationFn: DELETE_CATEGORY,
         onSuccess: (data) => {
             toast.success(data.success, {
                 id: "delete-brand"
@@ -84,8 +84,8 @@ export const BrandList = ({brands, totalPage}:BrandListProps) => {
         toast.loading("Brand deleting...", {
             id: "delete-brand"
         })
-        if (brandId) {
-            deleteBrand(brandId)
+        if (categoryId) {
+            deleteCategory(categoryId)
         } else {
             toast.error("Brand ID is missing", {
                 id: "delete-brand"
@@ -96,30 +96,30 @@ export const BrandList = ({brands, totalPage}:BrandListProps) => {
     return (
         <Card>
             <CardHeader>
-                <CardTitle>Brand List</CardTitle>
+                <CardTitle>Category List</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3 w-[300px] sm:w-full">
                 <Header />
                 <Table>
                     <TableHeader>
                         <TableRow>
-                        <TableHead>Image</TableHead>
-                        <TableHead>Name</TableHead>
-                        <TableHead>Products</TableHead>
-                        <TableHead>Action</TableHead>
+                        <TableHead className="">Image</TableHead>
+                        <TableHead className="">Name</TableHead>
+                        <TableHead className="">Products</TableHead>
+                        <TableHead className="">Action</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
                         {
-                            brands.map(brand => (
-                            <TableRow key={brand.id}>
+                            categories.map(category => (
+                            <TableRow key={category.id}>
                                 <TableCell className="py-2">
                                     <Avatar className="w-9 h-9">
-                                        <AvatarImage src={brand.imageUrl} />
-                                        <AvatarFallback>{brand.name}</AvatarFallback>
+                                        <AvatarImage src={category.imageUrl} />
+                                        <AvatarFallback>{category.name}</AvatarFallback>
                                     </Avatar>
                                 </TableCell>
-                                <TableCell className="py-2">{brand.name}</TableCell>
+                                <TableCell className="py-2">{category.name}</TableCell>
                                 <TableCell className="py-2">10</TableCell>
                                 <TableCell className="py-2">
                                     <DropdownMenu>
@@ -131,18 +131,18 @@ export const BrandList = ({brands, totalPage}:BrandListProps) => {
                                         </DropdownMenuTrigger>
                                         <DropdownMenuContent align="end">
                                             <DropdownMenuItem asChild>
-                                                <Link href={`/dashboard/brand/products/${brand.id}`} className="flex items-center gap-x-3">
+                                                <Link href={`/dashboard/brand/products/${category.id}`} className="flex items-center gap-x-3">
                                                     <Eye className="w-4 h-4" />
                                                     View Product
                                                 </Link>
                                             </DropdownMenuItem>
                                             <DropdownMenuItem asChild>
-                                                <Link href={`/dashboard/brand/edit/${brand.id}`} className="flex items-center gap-x-3">
+                                                <Link href={`/dashboard/category/edit/${category.id}`} className="flex items-center gap-x-3">
                                                     <Pen className="w-4 h-4" />
                                                     Edit
                                                 </Link>
                                             </DropdownMenuItem>
-                                            <DropdownMenuItem className="w-flex items-center gap-x-3" onClick={() => handleClick(brand.id)}>
+                                            <DropdownMenuItem className="w-flex items-center gap-x-3" onClick={() => handleClick(category.id)}>
                                                 <Trash2 className="text-rose-500 w-4 h-4" />
                                                 Delete
                                             </DropdownMenuItem>
@@ -155,7 +155,7 @@ export const BrandList = ({brands, totalPage}:BrandListProps) => {
                     </TableBody>
                 </Table>
                 <PaginationComp totalPage={totalPage} />
-                <AlertDialog open={!!brandId} onOpenChange={hanldeClose}>
+                <AlertDialog open={!!categoryId} onOpenChange={hanldeClose}>
                     <AlertDialogContent>
                         <AlertDialogHeader>
                         <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
