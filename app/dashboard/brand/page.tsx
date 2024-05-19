@@ -10,8 +10,38 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 import { Button } from "@/components/ui/button"
+import { db } from "@/lib/db"
+import { BrandList } from "@/components/dashboard/brand/brand-list"
 
-const Brand = async () => {
+interface Props {
+  searchParams: {
+      sort: string;
+      page: string;
+      perPage: string;
+      search: string;
+  }
+};
+
+const Brand = async ({ searchParams }: Props) => {
+    const {search, sort} = searchParams
+    const itemsPerPage = parseInt(searchParams.perPage) || 5;  
+    const currentPage = parseInt(searchParams.page) || 1;
+
+    const brands = await db.brand.findMany({
+        where: {
+            ...(search && {
+                name: {
+                    contains: search, mode: "insensitive"
+                }
+            })
+        },
+        orderBy: {
+            ...(sort === 'asc' && { name: 'asc' }),
+            ...(sort === 'desc' && { name: 'desc' }),
+        },
+        skip: (currentPage - 1) * itemsPerPage,
+        take: itemsPerPage,
+    })
 
     return (
         <div className="w-full space-y-4">
@@ -34,6 +64,8 @@ const Brand = async () => {
                     </Button>
                 </Link>
             </div>
+
+            <BrandList brands={brands} />
         </div>
     )
 }

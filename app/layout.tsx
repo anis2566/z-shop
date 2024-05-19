@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { ThemeProvider } from "@/providers/theme-provider";
 import AuthProvider from "@/providers/auth-provider"
 import { Toaster } from "@/components/ui/sonner"
+import { QueryProvider } from "@/providers/query-provider"
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -37,9 +38,11 @@ export default function RootLayout({
               defaultTheme="light"
               disableTransitionOnChange
           >
-            {children}
-            <NextTopLoader showSpinner={false} color="#16A34A" />
-            <Toaster />
+            <QueryProvider>
+              {children}
+              <NextTopLoader showSpinner={false} color="#16A34A" />
+              <Toaster />
+            </QueryProvider>
           </ThemeProvider>
         </body>
       </html>
