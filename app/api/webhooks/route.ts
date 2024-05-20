@@ -82,7 +82,6 @@ export async function POST(req: Request) {
           email: evt.data.email_addresses[0].email_address,
           name: `${evt.data.first_name} ${evt.data.last_name}`,
           imageUrl: evt.data.image_url,
-          role: evt.data.public_metadata?.role as string | undefined
         },
       });
     }

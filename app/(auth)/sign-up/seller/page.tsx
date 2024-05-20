@@ -42,6 +42,7 @@ export default function SellerRegister() {
             });
         },
         onError: (error) => {
+            console.log(error)
             toast.error(error.message, {
                 id: "create-seller"
             });
