@@ -66,7 +66,7 @@ export const AddVariantModal = ({ open, onClose, productId }: Props) => {
             size: "",
             stock: 0
         })
-    }
+    } 
 
     const {mutate: createStock, isPending} = useMutation({
         mutationFn: CREATE_STOCK,
@@ -92,7 +92,7 @@ export const AddVariantModal = ({ open, onClose, productId }: Props) => {
     }
 
     return (
-        <Dialog open={open && productId} onOpenChange={onClose}>
+        <Dialog open={!!(open && productId)} onOpenChange={onClose}>
             <DialogContent>
                 <DialogHeader>
                 <DialogTitle>Add Stock Variant</DialogTitle>

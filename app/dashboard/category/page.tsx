@@ -53,7 +53,7 @@ const Category = async ({ searchParams }: Props) => {
         }
     }) 
 
-    const totalPage = totalCategory / itemsPerPage
+    const totalPage = Math.ceil(totalCategory / itemsPerPage)
 
     return (
         <div className="w-full space-y-4">

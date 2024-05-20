@@ -3,6 +3,7 @@
 import { Logo } from "@/components/logo"
 import { DASHBOARD_SIDEBAR } from "@/constant"
 import { SidebarItem } from "@/components/dashboard/sidebar/sidebar-item"
+import { Separator } from "@/components/ui/separator"
 
 export const Sidebar = () => {
     return (
@@ -12,8 +13,9 @@ export const Sidebar = () => {
                     <Logo callbackUrl="/" />
                 </div>
                 <div className="flex h-full overflow-auto max-h-screen flex-col gap-2">
-                    <div className="flex-1 mt-3 space-y-2">
+                    <div className="flex-1 mt-3 space-y-1">
                         <p className="text-sm italic text-muted-foreground px-2 lg:px-7">Main</p>
+                        <Separator />
                         <nav className="grid items-start px-2 text-sm font-medium lg:px-4 space-y-2">
                             {
                                 DASHBOARD_SIDEBAR.map((item) => (

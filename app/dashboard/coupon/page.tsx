@@ -1,7 +1,6 @@
 import { Pen } from "lucide-react"
 import Link from "next/link"
 
-import { Button } from "@/components/ui/button"
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -10,48 +9,61 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
+import { Button } from "@/components/ui/button"
 
-import { db } from "@/lib/db"
-import { ProductList } from "@/components/dashboard/products/product-list"
+import {db} from "@/lib/db"
+import { CouponList } from "@/components/dashboard/coupon/coupon-list"
 
 interface Props {
   searchParams: {
-      sort: string;
+      status: string;
       page: string;
       perPage: string;
       search: string;
   }
 };
 
-const Products = async ({ searchParams }: Props) => {
-    const {search, sort} = searchParams
+const Coupon = async ({ searchParams }: Props) => {
+    const {search, status} = searchParams
     const itemsPerPage = parseInt(searchParams.perPage) || 5;  
     const currentPage = parseInt(searchParams.page) || 1;
 
-    const products = await db.product.findMany({
+    const coupons = await db.coupon.findMany({
         where: {
-            ...(search && {name: {contains:search, mode: "insensitive"}})
-        },
-        include: {
-            stocks: true,
+            ...(search && {
+                name: {
+                    contains: search, mode: "insensitive"
+                }
+            }),
+            ...(status !== "ALL" && {
+                status: {
+                    equals: status
+                }
+            })
         },
         orderBy: {
-            ...(sort === 'asc' && { name: 'asc' }),
-            ...(sort === 'desc' && { name: 'desc' }),
-            ...(sort === 'high-to-low' && { price: 'desc' }),
-            ...(sort === 'low-to-high' && { price: 'asc' }),
+            createdAt: "desc"
         },
         skip: (currentPage - 1) * itemsPerPage,
         take: itemsPerPage,
+    })
+
+    const totalCoupons = await db.coupon.count({
+        where: {
+            ...(search && {
+                name: {
+                    contains: search, mode: "insensitive"
+                }
+            }),
+            ...(status && {
+                status: {
+                    equals: status
+                }
+            })
+        }
     });
 
-    const totalProducts = await db.product.count({
-        where: {
-            ...(search && {name: {contains:search, mode: "insensitive"}})
-        }
-    }) 
-
-    const totalPage = Math.ceil(totalProducts / itemsPerPage)
+    const totalPage = Math.ceil(totalCoupons / itemsPerPage);
 
     return (
         <div className="w-full space-y-4">
@@ -63,20 +75,20 @@ const Products = async ({ searchParams }: Props) => {
                         </BreadcrumbItem>
                         <BreadcrumbSeparator />
                         <BreadcrumbItem>
-                        <BreadcrumbPage>Products</BreadcrumbPage>
+                        <BreadcrumbPage>Coupon</BreadcrumbPage>
                         </BreadcrumbItem>
                     </BreadcrumbList>
                 </Breadcrumb>
-                <Link href="/dashboard/products/create">
+                <Link href="/dashboard/coupon/create">
                     <Button size="sm" className="flex items-center gap-x-2">
                         <Pen className="w-5 h-5" />
                         Create
                     </Button>
                 </Link>
             </div>
-            <ProductList products={products} totalPage={totalPage} />
+            <CouponList coupons={coupons} totalPage={totalPage} />
         </div>
     )
 }
 
-export default Products
+export default Coupon

@@ -53,7 +53,7 @@ const Brand = async ({ searchParams }: Props) => {
         }
     }) 
 
-    const totalPage = totalBrands / itemsPerPage
+    const totalPage = Math.ceil(totalBrands / itemsPerPage)
 
     return (
         <div className="w-full space-y-4">

@@ -66,6 +66,17 @@ export const UPDATE_STOCK = async (values: StockVariantSchemaType) => {
         })
     ))
 
+    const totalStock = stocks.reduce((acc, curr) => acc + curr.stock, 0)
+
+    await db.product.update({
+        where: {
+            id: productId
+        },
+        data: {
+            totalStock
+        }
+    })
+
     return {
         success: "Stock updated"
     }

@@ -79,3 +79,28 @@ export const EDIT_PRODUCT = async (values: EditProductSchemaType) => {
         success: "Product updated"
     }
 }
+
+
+export const DELETE_PRODUCT = async (productId: string) => {
+    const product = await db.product.findUnique({
+        where: {
+            id: productId
+        }
+    })
+
+    if (!product) {
+        throw new Error('Product not found')
+    }
+
+    await db.product.delete({
+        where: {
+            id: productId
+        }
+    })
+
+    revalidatePath("/dashboard/products")
+
+    return {
+        success: "Product deleted"
+    }
+}

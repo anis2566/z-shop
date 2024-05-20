@@ -6,7 +6,8 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import queryString from "query-string"
 import { useMutation } from "@tanstack/react-query"
 import { toast } from "sonner"
-import { Product, Stock } from "@prisma/client"
+import { Coupon } from "@prisma/client"
+import { format } from "date-fns"
 
 import {
   Table,
@@ -35,31 +36,29 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-
-import { Header } from "../brand/header"
+import { Badge } from "@/components/ui/badge"
 import { PaginationComp } from "@/components/pagination-comp"
-import { DELETE_PRODUCT } from "@/actions/product.action"
 
-interface ProductWithStock extends Product {
-    stocks?: Stock[]
-}
+import { cn } from "@/lib/utils"
+import { Header } from "@/components/dashboard/coupon/header"
+import { DELETE_COUPON } from "@/actions/coupon.action"
 
 interface Props {
-    products: ProductWithStock[];
+    coupons: Coupon[];
     totalPage: number
 }
 
-export const ProductList = ({ products, totalPage }: Props) => {
+export const CouponList = ({ coupons, totalPage }: Props) => {
 
     const pathname = usePathname()
     const router = useRouter()
-    const productId = useSearchParams().get("productId")
+    const couponId = useSearchParams().get("couponId")
 
-    const handleClick = (productId: string) => {
+    const handleClick = (couponId: string) => {
         const url = queryString.stringifyUrl({
             url: pathname,
             query: {
-                productId
+                couponId
             }
         }, { skipEmptyString: true, skipNull: true })
         
@@ -70,29 +69,29 @@ export const ProductList = ({ products, totalPage }: Props) => {
         router.push(pathname)
     }
 
-    const {mutate: deleteProduct, isPending} = useMutation({
-        mutationFn: DELETE_PRODUCT,
+    const {mutate: deleteCoupon, isPending} = useMutation({
+        mutationFn: DELETE_COUPON,
         onSuccess: (data) => {
             toast.success(data.success, {
-                id: "delete-product"
+                id: "delete-coupon"
             });
         },
         onError: (error) => {
             toast.error(error.message, {
-                id: "delete-product"
+                id: "delete-coupon"
             });
         }
     })
- 
+
     const hanldeDelete = () => {
-        toast.loading("Product deleting...", {
-            id: "delete-product"
+        toast.loading("Coupon deleting...", {
+            id: "delete-coupon"
         })
-        if (productId) {
-            deleteProduct(productId)
+        if (couponId) {
+            deleteCoupon(couponId)
         } else {
             toast.error("Brand ID is missing", {
-                id: "delete-product"
+                id: "delete-coupon"
             });
         }
     }
@@ -100,7 +99,7 @@ export const ProductList = ({ products, totalPage }: Props) => {
     return (
         <Card>
             <CardHeader>
-                <CardTitle>Product List</CardTitle>
+                <CardTitle>Coupon List</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3 w-[300px] sm:w-full">
                 <Header />
@@ -109,30 +108,32 @@ export const ProductList = ({ products, totalPage }: Props) => {
                         <TableRow>
                         <TableHead className="">Image</TableHead>
                         <TableHead className="">Name</TableHead>
-                        <TableHead className="">Price</TableHead>
-                        <TableHead className="">D. Price</TableHead>
-                        <TableHead className="">S. Price</TableHead>
-                        <TableHead className="">Stock</TableHead>
+                        <TableHead className="">Code</TableHead>
+                        <TableHead className="">Value</TableHead>
+                        <TableHead className="">Start</TableHead>
+                        <TableHead className="">End</TableHead>
                         <TableHead className="">Status</TableHead>
                         <TableHead className="">Action</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
                         {
-                            products.map(product => (
-                            <TableRow key={product.id}>
+                            coupons.map(coupon => (
+                            <TableRow key={coupon.id}>
                                 <TableCell className="py-2">
                                     <Avatar className="w-9 h-9">
-                                        <AvatarImage src={product.featureImageUrl} />
-                                        <AvatarFallback>{product.name}</AvatarFallback>
+                                        <AvatarImage src={coupon.imageUrl || ""} />
+                                        <AvatarFallback>C</AvatarFallback>
                                     </Avatar>
                                 </TableCell>
-                                <TableCell className="py-2">{product.name.slice(0,30)}</TableCell>
-                                <TableCell className="py-2">{product.price}</TableCell>
-                                <TableCell className="py-2">{product.discountPrice}</TableCell>
-                                <TableCell className="py-2">{product.sellerPrice}</TableCell>
-                                <TableCell className="py-2">{product.totalStock}</TableCell>
-                                <TableCell className="py-2">{product.status}</TableCell>
+                                <TableCell className="py-2">{coupon.name}</TableCell>
+                                <TableCell className="py-2 uppercase">{coupon.code}</TableCell>
+                                <TableCell className="py-2 uppercase">{coupon.value}</TableCell>
+                                <TableCell className="py-2 uppercase">{format(coupon.startDate, "dd MMMM yyyy")}</TableCell>
+                                <TableCell className="py-2 uppercase">{format(coupon.startDate, "dd MMMM yyyy")}</TableCell>
+                                <TableCell className="py-2 uppercase">
+                                    <Badge className={cn("", coupon.status === "INACTIVE" && "bg-rose-500")}>{coupon.status}</Badge>    
+                                </TableCell>
                                 <TableCell className="py-2">
                                     <DropdownMenu>
                                         <DropdownMenuTrigger asChild>
@@ -143,12 +144,12 @@ export const ProductList = ({ products, totalPage }: Props) => {
                                         </DropdownMenuTrigger>
                                         <DropdownMenuContent align="end">
                                             <DropdownMenuItem asChild>
-                                                <Link href={`/dashboard/products/edit/${product.id}`} className="flex items-center gap-x-3">
+                                                <Link href={`/dashboard/coupon/edit/${coupon.id}`} className="flex items-center gap-x-3">
                                                     <Pen className="w-4 h-4" />
                                                     Edit
                                                 </Link>
                                             </DropdownMenuItem>
-                                            <DropdownMenuItem className="w-flex items-center gap-x-3" onClick={() => handleClick(product.id)}>
+                                            <DropdownMenuItem className="w-flex items-center gap-x-3" onClick={() => handleClick(coupon.id)}>
                                                 <Trash2 className="text-rose-500 w-4 h-4" />
                                                 Delete
                                             </DropdownMenuItem>
@@ -161,12 +162,12 @@ export const ProductList = ({ products, totalPage }: Props) => {
                     </TableBody>
                 </Table>
                 <PaginationComp totalPage={totalPage} />
-                <AlertDialog open={!!productId} onOpenChange={hanldeClose}>
+                <AlertDialog open={!!couponId} onOpenChange={hanldeClose}>
                     <AlertDialogContent>
                         <AlertDialogHeader>
                         <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                         <AlertDialogDescription>
-                            This action will delete the product permanantly.
+                            This action will delete the coupon permanantly.
                         </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>

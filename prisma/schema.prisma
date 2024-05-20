@@ -13,6 +13,37 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model User {
+  id String @id @default(uuid())
+  clerkId String @unique
+  name String
+  email String
+  imageUrl String
+
+  seller Seller?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Seller {
+  id String @id @default(uuid())
+  name String
+  email String
+  imageUrl String
+  phone String
+  address String
+
+  paymentNumber String
+  accountType String
+
+  userId String @unique
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 model Brand {
   id String @id @default(uuid())
   name String @unique
@@ -80,3 +111,19 @@ model Stock {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+model Coupon {
+  id String @id @default(uuid())
+  name String
+  code String
+  imageUrl String?
+  value Int
+  startDate DateTime
+  expiryDate DateTime
+  status String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+

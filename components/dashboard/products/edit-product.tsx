@@ -4,22 +4,22 @@ import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import dynamic from "next/dynamic";
-import { useEffect, useMemo, useState } from "react";
-import { Category, Product, Stock, Brand } from "@prisma/client"
+import { useMemo, useState } from "react";
+import { Product, Stock } from "@prisma/client"
 import Image from "next/image"
 import { UploadDropzone } from "@/lib/uploadthing"
-import { Trash,PlusCircle,RotateCw } from "lucide-react"
+import { Trash } from "lucide-react"
+import { toast } from "sonner"
+import { useMutation, useQuery } from "@tanstack/react-query";
 
 import "react-quill/dist/quill.snow.css";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle,CardFooter } from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger,SelectValue } from "@/components/ui/select"
-import { toast } from "sonner"
-import { useMutation, useQuery } from "@tanstack/react-query";
 import { GET_BRANDS } from "@/actions/brand.action";
 import { GET_CATEGORIES } from "@/actions/category.action";
 import { EditProductSchema } from "@/schema/product";
