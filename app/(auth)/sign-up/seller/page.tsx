@@ -3,19 +3,20 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
+import Image from "next/image";
+import { Trash } from "lucide-react";
+import { toast } from "sonner";
+import { useMutation } from "@tanstack/react-query";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import Image from "next/image";
-import { SellerSchema } from "@/schema/seller";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Trash } from "lucide-react";
 import { UploadDropzone } from "@/lib/uploadthing";
-import { toast } from "sonner";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useMutation } from "@tanstack/react-query";
+
+import { SellerSchema } from "@/schema/seller";
 import { CREATE_SELLER } from "@/actions/seller.action";
 
 export default function SellerRegister() {
@@ -89,7 +90,7 @@ export default function SellerRegister() {
                                         <FormItem>
                                             <FormLabel>Full Name</FormLabel>
                                             <FormControl>
-                                                <Input placeholder="Enter your name" {...field} type="text" />
+                                                <Input placeholder="Enter your name" {...field} type="text" disabled={isPending} />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -102,7 +103,7 @@ export default function SellerRegister() {
                                         <FormItem>
                                             <FormLabel>Email</FormLabel>
                                             <FormControl>
-                                                <Input placeholder="Enter your email" {...field} type="text" />
+                                                <Input placeholder="Enter your email" {...field} type="text" disabled={isPending} />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -115,7 +116,7 @@ export default function SellerRegister() {
                                         <FormItem>
                                             <FormLabel>Phone</FormLabel>
                                             <FormControl>
-                                                <Input placeholder="Enter your phone" {...field} type="text" />
+                                                <Input placeholder="Enter your phone" {...field} type="text" disabled={isPending} />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -132,6 +133,7 @@ export default function SellerRegister() {
                                                     placeholder="Enter full address"
                                                     className="resize-none"
                                                     {...field}
+                                                    disabled={isPending}
                                                 />
                                             </FormControl>
                                             <FormMessage />
@@ -199,7 +201,7 @@ export default function SellerRegister() {
                                     render={({ field }) => (
                                         <FormItem>
                                             <FormLabel>Account Type</FormLabel>
-                                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                            <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isPending}>
                                                 <FormControl>
                                                 <SelectTrigger>
                                                     <SelectValue placeholder="Select account" />
@@ -207,7 +209,7 @@ export default function SellerRegister() {
                                                 </FormControl>
                                                 <SelectContent>
                                                     {
-                                                        ["bkash", "nogod", "rocket"].map((v, i) => (
+                                                        ["bkash", "nogad", "rocket"].map((v, i) => (
                                                             <SelectItem value={v} key={i} className="capitalize">{v}</SelectItem>
                                                         ))
                                                     }
@@ -218,18 +220,18 @@ export default function SellerRegister() {
                                     )}
                                 />
                                 <FormField
-                                        control={form.control}
-                                        name="paymentNumber"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel>Account Number</FormLabel>
-                                                <FormControl>
-                                                    <Input placeholder="Enter your name" {...field} type="text" />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
+                                    control={form.control}
+                                    name="paymentNumber"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Account Number</FormLabel>
+                                            <FormControl>
+                                                <Input placeholder="Enter your name" {...field} type="text" disabled={isPending} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
                             </CardContent>
                         </Card>
                         <Button type="submit" disabled={isPending}>Submit</Button>

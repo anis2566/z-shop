@@ -5,7 +5,7 @@ import {
 import { NextResponse } from 'next/server';
 
 const isProtectedRoute = createRouteMatcher([
-  '/dashboard(.*)',
+  // '/dashboard(.*)',
   "/seller(.*)",
   "/sign-up/seller"
 ]);
@@ -13,6 +13,7 @@ const isProtectedRoute = createRouteMatcher([
 export default clerkMiddleware((auth, req) => {
   if (isProtectedRoute(req)) {
     const role = auth().sessionClaims?.role
+    const status = auth().sessionClaims?.status
     if (!auth().userId) {
       auth().protect()
     } else {
@@ -20,9 +21,9 @@ export default clerkMiddleware((auth, req) => {
         return NextResponse.redirect(new URL("/sign-up/seller", req.url));
       }
 
-      if (req.nextUrl.pathname.startsWith("/dashboard") && role !== "admin") {
-        return NextResponse.redirect(new URL("/", req.url));
-      }
+      // if (req.nextUrl.pathname.startsWith("/dashboard") && role !== "admin") {
+      //   return NextResponse.redirect(new URL("/", req.url));
+      // }
     }
   }
 });

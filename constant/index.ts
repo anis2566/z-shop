@@ -14,7 +14,8 @@ import {
   CalendarClock,
   ClipboardList,
   Store,
-  UserCog
+  UserCog,
+  Radio
 } from "lucide-react";
 
 export const DASHBOARD_SIDEBAR = [
@@ -53,4 +54,51 @@ export const DASHBOARD_SIDEBAR = [
     href: "/dashboard/coupon",
     icon: CirclePercent,
   },
+] as const;
+
+
+export const DASHBOARD_SELLER_SIDEBAR = [
+  {
+    label: "Seller Requests",
+    href: "/dashboard/sellers/request",
+    icon: Radio,
+  },
+  {
+    label: "Sellers",
+    href: "/dashboard/sellers",
+    icon: Users,
+  },
+  {
+    label: "Orders",
+    href: "/dashboard/sellers/orders",
+    icon: ShoppingCart,
+  },
+] as const;
+
+export const SELLER_DASHBOARD_SIDEBAR = [
+    {
+        label: "Dashboard",
+        href: "/seller",
+        icon: LayoutDashboard
+    },
+    {
+        label: "Store",
+        href: "/seller/store",
+        icon: Store
+    },
+    {
+        label: "Place Order",
+        href: "/seller/order/create",
+        icon: ShoppingCart
+    },
+    {
+        label: "Orders",
+        href: "/seller/order/list",
+        icon: ClipboardList
+    },
+    {
+        label: "Profile",
+        href: "/seller/profile",
+        icon: UserCog
+    },
 ] as const;
