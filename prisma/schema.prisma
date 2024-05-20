@@ -37,6 +37,7 @@ model Seller {
 
   paymentNumber String
   accountType String
+  status String @default("pending")
 
   userId String @unique
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
