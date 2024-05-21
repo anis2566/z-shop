@@ -40,9 +40,10 @@ import { Badge } from "@/components/ui/badge"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
-import { Header } from "@/components/dashboard/sellers/seller-request/header"
 import { PaginationComp } from "@/components/pagination-comp"
 import { DELETE_SELLER, UPDATE_SELLER_STATUS } from "@/actions/seller.action"
+import { cn } from "@/lib/utils"
+import { Header } from "./header"
 
 export enum Status {
     Active = "active",
@@ -54,7 +55,7 @@ interface Props {
     totalPage: number
 }
 
-export const SellerRequest = ({ sellers, totalPage }: Props) => {
+export const SellerList = ({ sellers, totalPage }: Props) => {
     const [status, setStatus] = useState<Status | "">("")
 
     const pathname = usePathname()
@@ -161,7 +162,7 @@ export const SellerRequest = ({ sellers, totalPage }: Props) => {
     return (
         <Card>
             <CardHeader>
-                <CardTitle>Seller Requests</CardTitle>
+                <CardTitle>Sellers</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3 w-[310px] sm:w-full">
                 <Header />
@@ -190,7 +191,14 @@ export const SellerRequest = ({ sellers, totalPage }: Props) => {
                                 <TableCell className="py-2">{seller.phone}</TableCell>
                                 <TableCell className="py-2 hidden md:table-cell">{seller.email}</TableCell>
                                 <TableCell className="py-2">
-                                    <Badge className="bg-amber-500 capitalize">{seller.status}</Badge>    
+                                        <Badge
+                                            className={cn("bg-amber-500 capitalize",
+                                                seller.status === "active" && "bg-green-500",
+                                                seller.status === "inactive" && "bg-rose-500",
+                                            )}
+                                        >
+                                            {seller.status}
+                                        </Badge>    
                                 </TableCell>
                                 <TableCell className="py-2">
                                     <DropdownMenu>

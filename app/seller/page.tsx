@@ -9,10 +9,10 @@ const Dashboard = () => {
     return (
         <main className="flex flex-1 flex-col gap-4 md:gap-8">
             <div className="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-4">
-                <BigCard title="Today" icon={DollarSign} value={530} />
-                <BigCard title="Pending" icon={DollarSign} value={1560} />
+                <BigCard title="Current Balance" icon={DollarSign} value={530} />
+                <BigCard title="Pending Balance" icon={DollarSign} value={1560} />
                 <BigCard title="Withdraw" icon={DollarSign} value={241644} />
-                <BigCard title="Total" icon={DollarSign} value={241644} />
+                <BigCard title="Total Earning" icon={DollarSign} value={241644} />
             </div>
 
             <div className="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-4">

@@ -1,17 +1,18 @@
-import { SellerRequest } from "@/components/dashboard/sellers/seller-request"
 import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
+    Breadcrumb,
+    BreadcrumbItem,
+    BreadcrumbLink,
+    BreadcrumbList,
+    BreadcrumbPage,
+    BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
+
 import { db } from "@/lib/db"
+import { SellerList } from "@/components/dashboard/sellers/seller-list";
 
 interface Props {
   searchParams: {
-      sort: string;
+      status: string;
       page: string;
       perPage: string;
       search: string;
@@ -19,18 +20,17 @@ interface Props {
 };
 
 const SellerRequests = async ({ searchParams }: Props) => {
-    const {search, sort} = searchParams
+    const {search, status} = searchParams
     const itemsPerPage = parseInt(searchParams.perPage) || 5;  
     const currentPage = parseInt(searchParams.page) || 1;
 
     const sellers = await db.seller.findMany({
         where: {
-            status: "pending",
+            ...(status !== "all" ? {status} : {status: {not: "pending"}}),
             ...(search && {name: {contains: search, mode: "insensitive"}})
         },
         orderBy: {
-            ...(sort === 'asc' && { name: 'asc' }),
-            ...(sort === 'desc' && { name: 'desc' }),
+            createdAt: "desc"
         },
         skip: (currentPage - 1) * itemsPerPage,
         take: itemsPerPage,
@@ -38,9 +38,9 @@ const SellerRequests = async ({ searchParams }: Props) => {
 
     const totalSeller = await db.seller.count({
         where: {
-            status: "pending",
+            ...(status !== "all" ? {status} : {status: {not: "pending"}}),
             ...(search && {name: {contains: search, mode: "insensitive"}})
-        }
+        },
     }) 
 
     const totalPage = Math.ceil(totalSeller / itemsPerPage)
@@ -54,16 +54,11 @@ const SellerRequests = async ({ searchParams }: Props) => {
                     </BreadcrumbItem>
                     <BreadcrumbSeparator />
                     <BreadcrumbItem>
-                    <BreadcrumbLink href="/dashboard/sellers">Sellers</BreadcrumbLink>
-                    </BreadcrumbItem>
-                    <BreadcrumbSeparator />
-                    <BreadcrumbItem>
-                    <BreadcrumbPage>Request</BreadcrumbPage>
+                    <BreadcrumbPage>Sellers</BreadcrumbPage>
                     </BreadcrumbItem>
                 </BreadcrumbList>
             </Breadcrumb>
-
-            <SellerRequest sellers={sellers} totalPage={totalPage} />
+            <SellerList sellers={sellers} totalPage={totalPage} />
         </div>
     )
 }

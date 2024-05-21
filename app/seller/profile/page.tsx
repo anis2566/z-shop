@@ -9,11 +9,9 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { db } from "@/lib/db"
 import { getUser } from "@/service/user.service"
-import { Pencil } from "lucide-react"
 import Image from "next/image"
 import { redirect } from "next/navigation"
 
@@ -68,7 +66,7 @@ const Profile = async () => {
 
                     <PersonalInfoForm seller={seller} />
                 </div>
-                <div>
+                <div className="space-y-6">
                     <ImageForm seller={seller} />
                     <PaymentForm seller={seller} />
                 </div>

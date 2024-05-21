@@ -42,6 +42,8 @@ model Seller {
   userId String @unique
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  orders SellerOrder[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -96,6 +98,7 @@ model Product {
   brand  Brand @relation(fields: [brandId], references: [id])
 
   stocks  Stock[]
+  sellerOrderProducts SellerOrderProduct[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -129,3 +132,38 @@ model Coupon {
 }
 
 
+model SellerOrder {
+  id String @id @default(uuid())
+  customerName String
+  address String @db.Text
+  mobile String
+  total Int
+  deliveryFee Int
+  status String @default("pending")
+  trackingId String?
+
+  sellerId String
+  seller Seller @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+
+  products SellerOrderProduct[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model SellerOrderProduct {
+  id String @id @default(uuid())
+  price Int
+  quantity Int
+  size String?
+  color String?
+
+  productId String 
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  orderId String // Foreign key to Order
+  order SellerOrder @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

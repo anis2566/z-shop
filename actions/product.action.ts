@@ -104,3 +104,12 @@ export const DELETE_PRODUCT = async (productId: string) => {
         success: "Product deleted"
     }
 }
+
+
+export const GET_PRODUCTS_FOR_SELLER = async () => {
+    const products = await db.product.findMany()
+
+    return {
+        products
+    }
+}

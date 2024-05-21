@@ -78,4 +78,16 @@ export const EditSellerImageSchema = z.object({
 export type EditSellerImageSchemaType = z.infer<typeof EditSellerImageSchema>;
 
 
+export const UpdateSellerStatusSchema = z.object({
+  sellerId: z.string().min(1, {
+    message: "required"
+  }),
+  status: z.enum(["active", "inactive"], {
+    message: "required",
+  }),
+});
+
+export type UpdateSellerStatusSchemaType = z.infer<typeof UpdateSellerStatusSchema>;
+
+
 

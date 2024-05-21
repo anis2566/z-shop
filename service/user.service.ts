@@ -23,3 +23,20 @@ export const getUser = async () => {
 
     return {user, userId:user.id, clerkId:userId}
 }
+
+
+export const getSeller = async () => {
+    const { userId } = await getUser()
+    
+    const seller = await db.seller.findUnique({
+        where: {
+            userId
+        }
+    })
+
+    if (!seller) {
+        throw new Error("Seller not found")
+    }
+
+    return {sellerId: seller.id}
+}
