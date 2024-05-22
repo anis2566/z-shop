@@ -80,7 +80,7 @@ export const Header = () => {
             <div className="flex items-center justify-between gap-x-3">
                 <div className="flex items-center gap-x-3">
                     <Select onValueChange={(value) => handlePerPageChange(value)}>
-                        <SelectTrigger className="w-[100px]">
+                        <SelectTrigger className="w-[100px] hidden sm:flex">
                             <SelectValue placeholder="Limit" />
                         </SelectTrigger>
                         <SelectContent>
@@ -139,13 +139,25 @@ export const Header = () => {
                     </SelectContent>
                 </Select>
             </div>
-            <div className="sm:hidden relative w-full">
+            <div className="sm:hidden relative w-full flex justify-between items-center gap-x-2">
                 <SearchIcon className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
                 type="search"
                 placeholder="Search..."
                 className="w-full appearance-none bg-background pl-8 shadow-none"
                 />
+                <Select onValueChange={(value) => handlePerPageChange(value)}>
+                        <SelectTrigger className="w-[100px]">
+                            <SelectValue placeholder="Limit" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {
+                                ["5", "10", "20", "50"].map((v, i) => (
+                                    <SelectItem value={v} key={i}>{v}</SelectItem>
+                                ))
+                            }
+                        </SelectContent>
+                    </Select>
             </div>
         </div>
     )

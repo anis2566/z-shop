@@ -20,20 +20,72 @@ interface SearchPageProps {
       page: string;
       perPage: string;
       search: string;
+      date: Date;
   }
 };
 
 const OrderListComp = async ({ searchParams }: SearchPageProps) => {
-    const page = parseInt(searchParams.page)
-    const perPage = parseInt(searchParams.perPage)
+    const {search, status, date:dateString} = searchParams
+    const itemsPerPage = parseInt(searchParams.perPage) || 5;  
+    const currentPage = parseInt(searchParams.page) || 1;
 
     const { sellerId } = await getSeller()
     
+    const date = dateString ? new Date(dateString) : null;
+
     const orders = await db.sellerOrder.findMany({
         where: {
-            sellerId
+            sellerId,
+            ...(search && {
+                customerName: {
+                    contains: search, mode: "insensitive"
+                }
+            }),
+            ...(date && {
+                createdAt: {
+                    gte: new Date(date.setHours(0, 0, 0, 0)), 
+                    lt: new Date(date.setHours(23, 59, 59, 999)) 
+                }
+            }),
+            ...(status !== "all" && { status })
+        },
+        include: {
+            products: {
+                include: {
+                    product: {
+                        select: {
+                            featureImageUrl: true
+                        }
+                    }
+                }
+            }
+        },
+        orderBy: {
+            createdAt: "desc"
+        },
+        skip: (currentPage - 1) * itemsPerPage,
+        take: itemsPerPage,
+    });
+
+    const totalOrders = await db.sellerOrder.count({
+        where: {
+            sellerId,
+            ...(search && {
+                customerName: {
+                    contains: search, mode: "insensitive"
+                }
+            }),
+            ...(date && {
+                createdAt: {
+                    gte: new Date(date.setHours(0, 0, 0, 0)), 
+                    lt: new Date(date.setHours(23, 59, 59, 999)) 
+                }
+            }),
+            ...(status !== "all" && { status })
         }
     })
+
+    const totalPage = totalOrders / itemsPerPage
 
     return (
         <div className="w-full space-y-8">
@@ -49,7 +101,7 @@ const OrderListComp = async ({ searchParams }: SearchPageProps) => {
                 </BreadcrumbList>
             </Breadcrumb>
 
-            <OrderList orders={orders} />
+            <OrderList orders={orders} totalPage={totalPage} />
         </div>
     )
 }
