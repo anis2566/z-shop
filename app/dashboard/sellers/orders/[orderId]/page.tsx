@@ -10,9 +10,10 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+
 import { db } from "@/lib/db";
 import { cn } from "@/lib/utils";
-import { TrackingCard } from "@/components/seller/orders/tracking-card";
+import { StatusCard } from "@/components/dashboard/sellers/orders/status-card";
 
 
 const OrderDetails = async ({ params }: { params: { orderId: string } }) => {
@@ -36,16 +37,6 @@ const OrderDetails = async ({ params }: { params: { orderId: string } }) => {
 
     if (!order) redirect("/dashboard")
     
-    const copyToClipboard = async (text: string) => {
-        try {
-            await navigator.clipboard.writeText(text);
-            console.log('Text copied to clipboard');
-        } catch (err) {
-            console.error('Failed to copy text: ', err);
-        }
-    }
-
-
     return (
         <div className="w-full space-y-4">
             <Breadcrumb>
@@ -55,7 +46,7 @@ const OrderDetails = async ({ params }: { params: { orderId: string } }) => {
                     </BreadcrumbItem>
                     <BreadcrumbSeparator />
                     <BreadcrumbItem>
-                    <BreadcrumbLink href="/dashboard/seller-orders">Seller Orders</BreadcrumbLink>
+                    <BreadcrumbLink href="/dashboard/sellers/orders">Seller Orders</BreadcrumbLink>
                     </BreadcrumbItem>
                     <BreadcrumbSeparator />
                     <BreadcrumbItem>
@@ -153,7 +144,7 @@ const OrderDetails = async ({ params }: { params: { orderId: string } }) => {
                         </CardFooter>
                     </Card>
 
-                    <TrackingCard order={order} />
+                    <StatusCard orderId={params.orderId} products={order.products} />
                 </div>
             </div>
         </div>

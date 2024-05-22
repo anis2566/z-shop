@@ -43,6 +43,21 @@ model Seller {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   orders SellerOrder[]
+  bank Bank?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Bank {
+  id String @id @default(uuid())
+  current Int
+  pending Int
+  withdraw Int
+  total Int
+
+  sellerId String @unique
+  seller Seller @relation(fields: [sellerId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

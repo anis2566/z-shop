@@ -1,14 +1,16 @@
-import {EditSeller} from "@/components/dashboard/sellers/edit"
+import { redirect } from "next/navigation";
+
 import {
-  Breadcrumb,
+    Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
+
+import {EditSeller} from "@/components/dashboard/sellers/edit"
 import { db } from "@/lib/db";
-import { redirect } from "next/navigation";
 
 interface Props {
     params: {
