@@ -29,7 +29,15 @@ export const CREATE_SELLER = async (values: SellerSchemaType) => {
     const newSeller = await db.seller.create({
         data: {
             userId,
-            ...values
+            ...values,
+            bank: {
+                create: {
+                    current: 0,
+                    pending: 0,
+                    withdraw: 0,
+                    total: 0
+                }
+            }
         }
     })
 
