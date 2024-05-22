@@ -285,7 +285,7 @@ const CreateOrder = () => {
                                 type="button"
                                 className="flex items-center gap-x-1"
                                 onClick={() => append({
-                                    product: "",
+                                    productId: "",
                                     quantity: 1,
                                     price: 0,
                                 })}
