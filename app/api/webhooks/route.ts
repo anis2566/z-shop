@@ -75,7 +75,8 @@ export async function POST(req: Request) {
       });
 
       knock.users.identify(evt.data.id, {
-        name: user.name
+        name: user.name,
+        avatar: user.imageUrl
       })
     }
 

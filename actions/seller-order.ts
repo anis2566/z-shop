@@ -2,7 +2,7 @@
 
 import { db } from "@/lib/db"
 import { SellerOrderSchema, SellerOrderSchemaType } from "@/schema/seller-order"
-import { getSeller, getUser } from "@/service/user.service"
+import { getAdmin, getSeller, getUser } from "@/service/user.service"
 import { SellerOrderProduct } from "@prisma/client"
 import { revalidatePath } from "next/cache"
 import { Knock } from "@knocklabs/node"
@@ -92,32 +92,24 @@ export const CREATE_SELLER_ORDER = async (values: SellerOrderSchemaType) => {
           }
         })
 
-const recipientId = "user_2grAwkLHufNYa09GHVSdR5jTZaP"; // Example recipient ID
+        const {adminClerId} = await getAdmin()
 
-try {
-  console.log("Triggering workflow for recipient:", recipientId);
-  await knock.workflows.trigger("e-shop", {
-    recipients: [recipientId],
-    actor: {
-      id: clerkId ?? "",
-      name: seller.name,
-    },
-    data: {
-      message: "You have a new order",
-    },
-  });
+        await knock.workflows.trigger("e-shop", {
+          recipients: [adminClerId],
+            actor: {
+              id: clerkId ?? "",
+              name: seller.name,
+            },
+            data: {
+              message: "You have a new order",
+              seller: seller.name
+            },
+          });
 
-  return {
-    success: "Order placed",
-  };
-} catch (error) {
-  console.error("Failed to trigger workflow:", error);
-  throw new Error("Failed to trigger workflow");
-}
-
-        return {
-          success: "Order placed",
+          return {
+            success: "Order placed",
         };
+
       } else {
         const stock = await db.stock.findFirst({
           where: {

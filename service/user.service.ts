@@ -40,3 +40,22 @@ export const getSeller = async () => {
 
     return {sellerId: seller.id}
 }
+
+
+export const getAdmin = async () => {
+    const admin = await db.user.findFirst({
+        where: {
+            role: "admin"
+        }
+    })
+
+    if (!admin) {
+        throw new Error("Admin not found")
+    }
+
+    return {
+        admin,
+        adminId: admin.id,
+        adminClerId: admin.clerkId
+    }
+}
