@@ -31,7 +31,7 @@ const OrderDetails = async ({ params }: { params: { orderId: string } }) => {
                         }
                     }
                 }
-            }
+            },
         }
     })
 
@@ -144,7 +144,7 @@ const OrderDetails = async ({ params }: { params: { orderId: string } }) => {
                         </CardFooter>
                     </Card>
 
-                    <StatusCard orderId={params.orderId} products={order.products} />
+                    <StatusCard orderId={params.orderId} products={order.products} sellerId={order.sellerId} />
                 </div>
             </div>
         </div>

@@ -2,7 +2,7 @@
 
 import { db } from "@/lib/db"
 import { SellerOrderSchema, SellerOrderSchemaType } from "@/schema/seller-order"
-import { getUser } from "@/service/user.service"
+import { getSeller, getUser } from "@/service/user.service"
 import { SellerOrderProduct } from "@prisma/client"
 import { revalidatePath } from "next/cache"
 
@@ -27,8 +27,22 @@ export const CREATE_SELLER_ORDER = async (values: SellerOrderSchemaType) => {
 
     const { products, customerName, address, mobile, deliveryFee } = parseBody.data
 
-    
-    
+    const productDetails = await Promise.all(products.map(async product => {
+        const productData = await db.product.findUnique({
+            where: { id: product.productId }
+        });
+        if (!productData) {
+            throw new Error(`Product with ID ${product.productId} not found`);
+        }
+        if (!productData.sellerPrice || product.price < productData.sellerPrice) {
+            throw new Error(`Invalid product price`);
+        }
+        return {
+            ...product,
+            originalPrice: productData.sellerPrice
+        };
+    }));    
+
     const total = products.reduce((acc, curr) => acc + (curr.price * curr.quantity),0)
 
     await db.sellerOrder.create({
@@ -41,13 +55,14 @@ export const CREATE_SELLER_ORDER = async (values: SellerOrderSchemaType) => {
             deliveryFee,
             products: {
                 createMany: {
-                    data: products.map(product => (
+                    data: productDetails.map(product => (
                         {
                             productId: product.productId,
-                            price: product.price,
+                            price: product.originalPrice,
                             quantity: product.quantity,
                             size: product.size,
-                            color: product.color
+                            color: product.color,
+                            sellPrice: product.price
                         }
                     ))
                 }
@@ -57,12 +72,22 @@ export const CREATE_SELLER_ORDER = async (values: SellerOrderSchemaType) => {
 
     revalidatePath("/seller/order/list");
 
-    for (const product of products) {
+    for (const product of productDetails) {
       if (!product.size) {
         await db.product.update({
           where: { id: product.productId },
           data: { totalStock: { decrement: product.quantity } },
         });
+
+        await db.bank.update({
+          where: {
+            sellerId: seller.id
+          },
+          data: {
+            pending: {increment: (product.price - product.originalPrice)}
+          }
+        })
+
         return {
           success: "Order placed",
         };
@@ -115,9 +140,10 @@ type UpdateStatus = {
   orderId: string;
   products: SellerOrderProduct[];
   status: string;
+  sellerId: string;
 }
 
-export const UPDATE_SELLER_ORDER_STATUS = async ({orderId, products, status}:UpdateStatus) => {
+export const UPDATE_SELLER_ORDER_STATUS = async ({orderId, products, status, sellerId}:UpdateStatus) => {
   const order = await db.sellerOrder.findUnique({
     where: {
       id: orderId
@@ -144,6 +170,15 @@ export const UPDATE_SELLER_ORDER_STATUS = async ({orderId, products, status}:Upd
             status
           }
         })
+
+      await db.bank.update({
+        where: {
+          sellerId
+        },
+        data: {
+          pending: {decrement: (product.sellPrice - product.price)},
+        }
+      })
 
         return {
           success: "Status updated",
@@ -196,13 +231,52 @@ export const UPDATE_SELLER_ORDER_STATUS = async ({orderId, products, status}:Upd
           }
         })
 
+      await db.bank.update({
+        where: {
+          sellerId
+        },
+        data: {
+          pending: {decrement: (product.sellPrice - product.price)},
+        }
+      })
+
         return {
           success: "Status updated",
           status
         };
       }
     }
-  } else {
+  }
+
+  if (status === "delivered") {
+    for (const product of products) {
+      await db.bank.update({
+        where: {
+          sellerId
+        },
+        data: {
+          current: {increment: (product.sellPrice - product.price)},
+          total: {increment: (product.sellPrice - product.price)}
+        }
+      })
+    }
+
+    await db.sellerOrder.update({
+      where: {
+        id: orderId
+      },
+      data: {
+        status
+      }
+    })
+
+    return {
+      success: "Status updated",
+      status
+    }
+  }
+
+  if (status === "shipping") {
     await db.sellerOrder.update({
       where: {
         id: orderId

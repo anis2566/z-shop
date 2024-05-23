@@ -14,8 +14,6 @@ export const ProductSchema = z.object({
     color: z.string().optional(),
 })
 
-export type ProductSchemaType = z.infer<typeof ProductSchema>
-
 export const SellerOrderSchema = z.object({ 
     products: z.array(ProductSchema),
     customerName: z.string().min(3, {

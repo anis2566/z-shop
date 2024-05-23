@@ -169,6 +169,7 @@ model SellerOrder {
 model SellerOrderProduct {
   id String @id @default(uuid())
   price Int
+  sellPrice Int
   quantity Int
   size String?
   color String?

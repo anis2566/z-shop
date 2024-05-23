@@ -57,7 +57,7 @@ const CreateOrder = () => {
     const { mutate:createOrder, isPending } = useMutation({
         mutationFn: CREATE_SELLER_ORDER,
         onSuccess: (data) => {
-            router.push("/seller/order/list")
+            // router.push("/seller/order/list")
             toast.success(data?.success, {
                 id: "create-order",
                 duration: 2000
@@ -97,22 +97,6 @@ const CreateOrder = () => {
     });
 
     const onSubmit = (values: z.infer<typeof SellerOrderSchema>) => {
-        const { products } = values;
-
-        // Validate that the product price is not less than the selected product price
-        for (let i = 0; i < products.length; i++) {
-            const formProduct = products[i];
-            const selectedProduct = selectedProducts.find(p => p.id === formProduct.productId);
-
-            if (selectedProduct && selectedProduct.sellerPrice !== null && formProduct.price < selectedProduct.sellerPrice) {
-                toast.error(`Price for product ${selectedProduct.name} should not be less than ${selectedProduct.sellerPrice}`, {
-                    id: "create-order",
-                    duration: 2000
-                });
-                return;
-            }
-        }
-
         toast.loading("Creating order...", { id: "create-order" });
         createOrder(values);
     };

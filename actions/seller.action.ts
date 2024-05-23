@@ -1,7 +1,6 @@
 "use server"
 
 import { db } from "@/lib/db"
-import { EditProductSchema, EditProductSchemaType } from "@/schema/product"
 import { EditSellerImageSchema, EditSellerImageSchemaType, EditSellerInfoSchema, EditSellerInfoSchemaType, EditSellerPaymentSchema, EditSellerPaymentSchemaType, SellerSchema, SellerSchemaType, UpdateSellerStatusSchema, UpdateSellerStatusSchemaType } from "@/schema/seller"
 import { getUser } from "@/service/user.service"
 import { clerkClient } from "@clerk/nextjs/server"
