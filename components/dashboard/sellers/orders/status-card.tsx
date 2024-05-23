@@ -23,10 +23,11 @@ import { UPDATE_SELLER_ORDER_STATUS, UPDATE_TRACKING_ID } from "@/actions/seller
 
 interface Props {
     orderId: string;
-    products: SellerOrderProduct[]
+    products: SellerOrderProduct[];
+    sellerId:
 }
 
-export const StatusCard = ({orderId, products}:Props) => {
+export const StatusCard = ({orderId, products, sellerId}:Props) => {
     const [status, setStatus] = useState<string>("")
     const [trackingId, setTrackingId] = useState<string>("")
 
@@ -80,7 +81,8 @@ export const StatusCard = ({orderId, products}:Props) => {
         updateOrder({
             orderId,
             products,
-            status
+            status,
+            sellerId
         })
     }
 
