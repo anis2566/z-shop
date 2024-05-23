@@ -47,15 +47,6 @@ export const CREATE_SELLER = async (values: SellerSchemaType) => {
         },
     });
 
-    await db.user.update({
-        where: {
-            clerkId
-        },
-        data: {
-            role: "seller",
-        }
-    })
-
     return {
         success: "Account created"
     }
