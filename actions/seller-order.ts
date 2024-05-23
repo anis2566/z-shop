@@ -94,10 +94,10 @@ export const CREATE_SELLER_ORDER = async (values: SellerOrderSchemaType) => {
           }
         })
 
-        const {adminId} = await getAdmin()
+        const {adminClerId} = await getAdmin()
 
         await knock.workflows.trigger("seller-to-admin-order", {
-          recipients: [adminId],
+          recipients: [adminClerId],
             actor: {
               id: clerkId ?? "",
               name: seller.name,
@@ -151,10 +151,10 @@ export const CREATE_SELLER_ORDER = async (values: SellerOrderSchemaType) => {
           }
         })
 
-        const {adminId} = await getAdmin()
+        const {adminClerId} = await getAdmin()
 
         await knock.workflows.trigger("seller-to-admin-order", {
-          recipients: [adminId],
+          recipients: [adminClerId],
             actor: {
               id: clerkId ?? "",
               name: seller.name,
@@ -216,6 +216,32 @@ export const UPDATE_SELLER_ORDER_STATUS = async ({orderId, products, status, sel
           pending: {decrement: (product.sellPrice - product.price)},
         }
       })
+        
+        const seller = await db.seller.findUnique({
+          where: {
+            id: order.sellerId
+          },
+          include: {
+            user: {
+              select: {
+                clerkId: true
+              }
+            }
+          }
+        })
+        const { userId } = auth()
+        
+        await knock.workflows.trigger("admin-to-seller-order", {
+          recipients: [seller?.user?.clerkId || ""],
+            actor: {
+              id: userId ?? "",
+            },
+            data: {
+              sellerOrderId: order.id,
+              invoice: order.invoiceId,
+              status
+            },
+        });
                    
         return {
           success: "Status updated",
