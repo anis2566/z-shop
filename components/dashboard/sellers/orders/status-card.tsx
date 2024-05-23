@@ -24,7 +24,7 @@ import { UPDATE_SELLER_ORDER_STATUS, UPDATE_TRACKING_ID } from "@/actions/seller
 interface Props {
     orderId: string;
     products: SellerOrderProduct[];
-    sellerId:
+    sellerId: string;
 }
 
 export const StatusCard = ({orderId, products, sellerId}:Props) => {
