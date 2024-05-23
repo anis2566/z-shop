@@ -94,10 +94,10 @@ export const CREATE_SELLER_ORDER = async (values: SellerOrderSchemaType) => {
           }
         })
 
-        const {adminClerId} = await getAdmin()
+        const {adminId} = await getAdmin()
 
         await knock.workflows.trigger("seller-to-admin-order", {
-          recipients: [adminClerId],
+          recipients: [adminId],
             actor: {
               id: clerkId ?? "",
               name: seller.name,
@@ -151,10 +151,10 @@ export const CREATE_SELLER_ORDER = async (values: SellerOrderSchemaType) => {
           }
         })
 
-        const {adminClerId} = await getAdmin()
+        const {adminId} = await getAdmin()
 
         await knock.workflows.trigger("seller-to-admin-order", {
-          recipients: [adminClerId],
+          recipients: [adminId],
             actor: {
               id: clerkId ?? "",
               name: seller.name,
@@ -216,7 +216,7 @@ export const UPDATE_SELLER_ORDER_STATUS = async ({orderId, products, status, sel
           pending: {decrement: (product.sellPrice - product.price)},
         }
       })
-             
+                   
         return {
           success: "Status updated",
           status

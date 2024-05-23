@@ -5,8 +5,6 @@ import { EditSellerImageSchema, EditSellerImageSchemaType, EditSellerInfoSchema,
 import { getUser } from "@/service/user.service"
 import { clerkClient } from "@clerk/nextjs/server"
 import { revalidatePath } from "next/cache"
-import { Knock } from "@knocklabs/node"
-const knock = new Knock(process.env.NEXT_PUBLIC_KNOCK_API_KEY)
 
 export const CREATE_SELLER = async (values: SellerSchemaType) => {
     const parseBody = SellerSchema.safeParse(values)
@@ -40,13 +38,6 @@ export const CREATE_SELLER = async (values: SellerSchemaType) => {
                 }
             }
         }
-    })
-
-    await knock.users.delete(userId)
-
-    await knock.users.identify(newSeller.id, {
-        name: newSeller.name,
-        avatar: newSeller.imageUrl
     })
 
     await clerkClient.users.updateUserMetadata(clerkId, {

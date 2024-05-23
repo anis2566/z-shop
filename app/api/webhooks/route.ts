@@ -74,7 +74,7 @@ export async function POST(req: Request) {
         },
       });
 
-      await knock.users.identify(user.id, {
+      await knock.users.identify(evt.data.id, {
         name: user.name,
         avatar: user.imageUrl,
       })
