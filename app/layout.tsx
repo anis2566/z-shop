@@ -8,6 +8,7 @@ import { ThemeProvider } from "@/providers/theme-provider";
 import AuthProvider from "@/providers/auth-provider"
 import { Toaster } from "@/components/ui/sonner"
 import { QueryProvider } from "@/providers/query-provider"
+import { AppKnockProviders } from "@/providers/knock-provider";
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -39,9 +40,11 @@ export default function RootLayout({
               disableTransitionOnChange
           >
             <QueryProvider>
-              {children}
-              <NextTopLoader showSpinner={false} color="#16A34A" />
-              <Toaster />
+              <AppKnockProviders>
+                {children}
+                <NextTopLoader showSpinner={false} color="#16A34A" />
+                <Toaster />
+              </AppKnockProviders>
             </QueryProvider>
           </ThemeProvider>
         </body>

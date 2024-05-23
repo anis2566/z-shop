@@ -5,6 +5,9 @@ import { SellerOrderSchema, SellerOrderSchemaType } from "@/schema/seller-order"
 import { getSeller, getUser } from "@/service/user.service"
 import { SellerOrderProduct } from "@prisma/client"
 import { revalidatePath } from "next/cache"
+import { Knock } from "@knocklabs/node"
+import { auth } from "@clerk/nextjs/server"
+const knock = new Knock(process.env.KNOCK_SECRET_KEY);
 
 export const CREATE_SELLER_ORDER = async (values: SellerOrderSchemaType) => {
     const parseBody = SellerOrderSchema.safeParse(values)
@@ -13,7 +16,8 @@ export const CREATE_SELLER_ORDER = async (values: SellerOrderSchemaType) => {
         throw new Error("Invalid input field")
     }
 
-    const { userId } = await getUser()
+  const { userId } = await getUser()
+  const {userId:clerkId} = auth()
     
     const seller = await db.seller.findUnique({
         where: {
@@ -87,6 +91,29 @@ export const CREATE_SELLER_ORDER = async (values: SellerOrderSchemaType) => {
             pending: {increment: (product.price - product.originalPrice)}
           }
         })
+
+const recipientId = "user_2grAwkLHufNYa09GHVSdR5jTZaP"; // Example recipient ID
+
+try {
+  console.log("Triggering workflow for recipient:", recipientId);
+  await knock.workflows.trigger("e-shop", {
+    recipients: [recipientId],
+    actor: {
+      id: clerkId ?? "",
+      name: seller.name,
+    },
+    data: {
+      message: "You have a new order",
+    },
+  });
+
+  return {
+    success: "Order placed",
+  };
+} catch (error) {
+  console.error("Failed to trigger workflow:", error);
+  throw new Error("Failed to trigger workflow");
+}
 
         return {
           success: "Order placed",

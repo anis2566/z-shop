@@ -1,33 +1,53 @@
-import {Bell} from "lucide-react"
+"use client"
 
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Button } from "@/components/ui/button"
-
-import { NotificationItem } from "@/components/dashboard/notification/notification-item"
+import { useEffect, useRef, useState } from "react"
+import { NotificationCell, NotificationFeedPopover, NotificationIconButton, useKnockClient } from "@knocklabs/react"
+import Link from "next/link"
+import { useAuth, useSession } from "@clerk/nextjs"
 
 export const Notification = () => {
+    const [isVisible, setIsVisible] = useState<boolean>(false);
+    const notifButtonRef = useRef(null);
+    const { userId } = useAuth()
+    const { session } = useSession()
+    const knock = useKnockClient()
+    
+    useEffect(() => {
+        console.log("rendered")
+        if (userId) {
+            knock.authenticate(userId)
+        }
+    },[knock, userId])
+    
+
     return (
-        <DropdownMenu> 
-            <DropdownMenuTrigger asChild>
-                <div className="relative">
-                    <Button variant="outline" size="icon">
-                        <Bell className="h-[1.2rem] w-[1.2rem] dark:text-white" />
-                        <span className="sr-only">Open Notification</span>
-                    </Button>
-                    <div className="absolute -top-1 -right-1 w-6 h-6 flex items-center justify-center rounded-full bg-rose-500 text-white">5</div>
-                </div>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-                <div className="space-y-1 p-2">
-                    <NotificationItem />
-                    <NotificationItem />
-                    <NotificationItem />
-                </div>
-            </DropdownMenuContent>
-        </DropdownMenu>
+        <div>
+            <NotificationIconButton
+                ref={notifButtonRef}
+                onClick={(e) => setIsVisible(!isVisible)}
+            />
+            <NotificationFeedPopover
+                buttonRef={notifButtonRef}
+                isVisible={isVisible}
+                onClose={() => setIsVisible(false)}
+                renderItem={({ item, ...props }) => (
+                    <NotificationCell {...props} item={item}>
+                        <div className="rounded-xl">
+                            <Link
+                                className="text-blue-400 hover:text=blue-500"
+                                onClick={() => {
+                                    setIsVisible(false);
+                                }}
+                                href={`/items/${item.data.itemId}`}
+                            >
+                                Someone outbidded you on{" "}
+                                <span className="font-bold">{item.data.itemName}</span>{" "}
+                                by Anis
+                            </Link>
+                        </div>
+                    </NotificationCell>
+                )}
+            />
+        </div>
     )
 }

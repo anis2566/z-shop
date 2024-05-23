@@ -2,6 +2,8 @@ import { Webhook } from "svix";
 import { headers } from "next/headers";
 import { WebhookEvent, clerkClient } from "@clerk/nextjs/server";
 import { db } from "@/lib/db";
+import { Knock } from "@knocklabs/node"
+const knock = new Knock(process.env.NEXT_PUBLIC_KNOCK_API_KEY)
 
 export async function POST(req: Request) {
   // You can find this in the Clerk Dashboard -> Webhooks -> choose the endpoint
@@ -71,6 +73,10 @@ export async function POST(req: Request) {
           role: user.role,
         },
       });
+
+      knock.users.identify(evt.data.id, {
+        name: user.name
+      })
     }
 
     if (eventType === "user.updated") {
