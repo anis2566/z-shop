@@ -74,9 +74,9 @@ export async function POST(req: Request) {
         },
       });
 
-      knock.users.identify(evt.data.id, {
+      knock.users.identify(user.id, {
         name: user.name,
-        avatar: user.imageUrl
+        avatar: user.imageUrl,
       })
     }
 
@@ -89,7 +89,6 @@ export async function POST(req: Request) {
           email: evt.data.email_addresses[0].email_address,
           name: `${evt.data.first_name} ${evt.data.last_name}`,
           imageUrl: evt.data.image_url,
-          role: evt.data.private_metadata.role as string
         },
       });
     }

@@ -149,6 +149,7 @@ model Coupon {
 
 model SellerOrder {
   id String @id @default(uuid())
+  invoiceId String 
   customerName String
   address String @db.Text
   mobile String

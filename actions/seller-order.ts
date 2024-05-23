@@ -7,6 +7,7 @@ import { SellerOrderProduct } from "@prisma/client"
 import { revalidatePath } from "next/cache"
 import { Knock } from "@knocklabs/node"
 import { auth } from "@clerk/nextjs/server"
+import { generateInvoiceId } from "@/lib/utils"
 const knock = new Knock(process.env.KNOCK_SECRET_KEY);
 
 export const CREATE_SELLER_ORDER = async (values: SellerOrderSchemaType) => {
@@ -49,9 +50,10 @@ export const CREATE_SELLER_ORDER = async (values: SellerOrderSchemaType) => {
 
     const total = products.reduce((acc, curr) => acc + (curr.price * curr.quantity),0)
 
-    await db.sellerOrder.create({
+    const order = await db.sellerOrder.create({
         data: {
             sellerId: seller.id,
+            invoiceId: generateInvoiceId(),
             customerName,
             address,
             mobile,
@@ -94,15 +96,16 @@ export const CREATE_SELLER_ORDER = async (values: SellerOrderSchemaType) => {
 
         const {adminClerId} = await getAdmin()
 
-        await knock.workflows.trigger("e-shop", {
+        await knock.workflows.trigger("seller-to-admin-order", {
           recipients: [adminClerId],
             actor: {
               id: clerkId ?? "",
               name: seller.name,
             },
             data: {
-              message: "You have a new order",
-              seller: seller.name
+              seller: seller.name,
+              sellerOrderId: order.id,
+              invoice: order.invoiceId
             },
           });
 
@@ -147,6 +150,21 @@ export const CREATE_SELLER_ORDER = async (values: SellerOrderSchemaType) => {
             totalStock
           }
         })
+
+        const {adminClerId} = await getAdmin()
+
+        await knock.workflows.trigger("seller-to-admin-order", {
+          recipients: [adminClerId],
+            actor: {
+              id: clerkId ?? "",
+              name: seller.name,
+            },
+            data: {
+              seller: seller.name,
+              sellerOrderId: order.id,
+              invoice: order.invoiceId
+            },
+        });
 
         return {
           success: "Order placed",
@@ -198,7 +216,7 @@ export const UPDATE_SELLER_ORDER_STATUS = async ({orderId, products, status, sel
           pending: {decrement: (product.sellPrice - product.price)},
         }
       })
-
+             
         return {
           success: "Status updated",
           status

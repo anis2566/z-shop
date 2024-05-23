@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react"
 import { NotificationCell, NotificationFeedPopover, NotificationIconButton, useKnockClient } from "@knocklabs/react"
 import Link from "next/link"
 import { useAuth, useSession } from "@clerk/nextjs"
+import { Button } from "@/components/ui/button"
 
 export const Notification = () => {
     const [isVisible, setIsVisible] = useState<boolean>(false);
@@ -32,18 +33,14 @@ export const Notification = () => {
                 onClose={() => setIsVisible(false)}
                 renderItem={({ item, ...props }) => (
                     <NotificationCell {...props} item={item}>
-                        <div className="rounded-xl">
-                            <Link
-                                className="text-blue-400 hover:text=blue-500"
-                                onClick={() => {
-                                    setIsVisible(false);
-                                }}
-                                href={`/items/${item.data.itemId}`}
-                            >
-                                Someone outbidded you on{" "}
-                                <span className="font-bold">{item.data.itemName}</span>{" "}
-                                by Anis
-                            </Link>
+                        <div className="flex justify-end">
+                            {
+                                item.data.sellerOrderId && (
+                                    <Button asChild variant="outline" onClick={() => setIsVisible(false)} size="sm">
+                                        <Link href={`/dashboard/sellers/orders/${item.data.sellerOrderId}`}>View Order</Link>
+                                    </Button>
+                                )
+                            }
                         </div>
                     </NotificationCell>
                 )}
