@@ -331,7 +331,7 @@ const CreateOrder = () => {
                             </CardContent>
                         </Card>
                     </div>
-                    <div className={cn("hidden space-y-6", selectedProducts.length > 0 && "block")}>
+                    <div className="space-y-6">
                         <Card className="flex flex-col">
                             <CardHeader className="pb-4">
                                 <CardTitle>Order Summary</CardTitle>

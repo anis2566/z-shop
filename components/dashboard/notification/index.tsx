@@ -19,8 +19,8 @@ export const Notification = () => {
                 isVisible={isVisible}
                 onClose={() => setIsVisible(false)}
                 renderItem={({ item, ...props }) => (
-                    item.data.sellerOrderId ? (
-                        <Link href={`/dashboard/sellers/orders/${item.data.sellerOrderId}`} key={item.id} onClick={() => setIsVisible(false)}>
+                    item.data.redirectUrl ? (
+                        <Link href={item.data.redirectUrl} key={item.id} onClick={() => setIsVisible(false)}>
                             <NotificationCell {...props} item={item} />
                         </Link>
                     ) : null

@@ -1,14 +1,13 @@
 "use server"
 
-import { db } from "@/lib/db"
-import { SellerOrderSchema, SellerOrderSchemaType } from "@/schema/seller-order"
-import { getAdmin, getSeller, getUser } from "@/service/user.service"
 import { SellerOrderProduct } from "@prisma/client"
 import { revalidatePath } from "next/cache"
-import { Knock } from "@knocklabs/node"
-import { auth } from "@clerk/nextjs/server"
+
+import { db } from "@/lib/db"
+import { SellerOrderSchema, SellerOrderSchemaType } from "@/schema/seller-order"
+import { getAdmin, getUser } from "@/service/user.service"
 import { generateInvoiceId } from "@/lib/utils"
-const knock = new Knock(process.env.KNOCK_SECRET_KEY);
+import { sendNotification } from "@/service/notification.service"
 
 export const CREATE_SELLER_ORDER = async (values: SellerOrderSchemaType) => {
     const parseBody = SellerOrderSchema.safeParse(values)
@@ -17,8 +16,7 @@ export const CREATE_SELLER_ORDER = async (values: SellerOrderSchemaType) => {
         throw new Error("Invalid input field")
     }
 
-  const { userId } = await getUser()
-  const {userId:clerkId} = auth()
+  const { userId, clerkId } = await getUser()
     
     const seller = await db.seller.findUnique({
         where: {
@@ -94,25 +92,6 @@ export const CREATE_SELLER_ORDER = async (values: SellerOrderSchemaType) => {
           }
         })
 
-        const {adminClerId} = await getAdmin()
-
-        await knock.workflows.trigger("seller-to-admin-order", {
-          recipients: [adminClerId],
-            actor: {
-              id: clerkId ?? "",
-              name: seller.name,
-            },
-            data: {
-              seller: seller.name,
-              sellerOrderId: order.id,
-              invoice: order.invoiceId
-            },
-          });
-
-          return {
-            success: "Order placed",
-        };
-
       } else {
         const stock = await db.stock.findFirst({
           where: {
@@ -150,27 +129,28 @@ export const CREATE_SELLER_ORDER = async (values: SellerOrderSchemaType) => {
             totalStock
           }
         })
-
-        const {adminClerId} = await getAdmin()
-
-        await knock.workflows.trigger("seller-to-admin-order", {
-          recipients: [adminClerId],
-            actor: {
-              id: clerkId ?? "",
-              name: seller.name,
-            },
-            data: {
-              seller: seller.name,
-              sellerOrderId: order.id,
-              invoice: order.invoiceId
-            },
-        });
-
-        return {
-          success: "Order placed",
-        };
       }
+  }
+  
+  const {adminClerId} = await getAdmin()
+
+  await sendNotification({
+    trigger: "seller-to-admin-order",
+    recipients: [adminClerId],
+    actor: {
+      id: clerkId || "",
+      name: seller.name
+    },
+    data: {
+      name: seller.name,
+      redirectUrl: `/dashboard/sellers/orders/${order.id}`,
+      invoice: order.invoiceId
     }
+  })
+
+  return {
+    success: "Order placed",
+  };
 }
 
 type UpdateStatus = {
@@ -199,55 +179,16 @@ export const UPDATE_SELLER_ORDER_STATUS = async ({orderId, products, status, sel
           data: { totalStock: { increment: product.quantity } },
         });
 
-        await db.sellerOrder.update({
+        await db.bank.update({
           where: {
-            id: orderId
+            sellerId
           },
           data: {
-            status
+            pending: { decrement: (product.sellPrice - product.price) },
           }
         })
-
-      await db.bank.update({
-        where: {
-          sellerId
-        },
-        data: {
-          pending: {decrement: (product.sellPrice - product.price)},
-        }
-      })
-        
-        const seller = await db.seller.findUnique({
-          where: {
-            id: order.sellerId
-          },
-          include: {
-            user: {
-              select: {
-                clerkId: true
-              }
-            }
-          }
-        })
-        const { userId } = auth()
-        
-        await knock.workflows.trigger("admin-to-seller-order", {
-          recipients: [seller?.user?.clerkId || ""],
-            actor: {
-              id: userId ?? "",
-            },
-            data: {
-              sellerOrderId: order.id,
-              invoice: order.invoiceId,
-              status
-            },
-        });
-                   
-        return {
-          success: "Status updated",
-          status
-        };
-      } else {
+      }
+      else {
         const stock = await db.stock.findFirst({
           where: {
             productId: product.productId
@@ -264,7 +205,7 @@ export const UPDATE_SELLER_ORDER_STATUS = async ({orderId, products, status, sel
             size: product.size
           },
           data: {
-            stock: {increment: product.quantity}
+            stock: { increment: product.quantity }
           }
         })
 
@@ -274,7 +215,7 @@ export const UPDATE_SELLER_ORDER_STATUS = async ({orderId, products, status, sel
           }
         })
 
-        const totalStock = stocks.reduce((acc, curr) => acc+curr.stock,0)
+        const totalStock = stocks.reduce((acc, curr) => acc + curr.stock, 0)
 
         await db.product.update({
           where: {
@@ -285,43 +226,15 @@ export const UPDATE_SELLER_ORDER_STATUS = async ({orderId, products, status, sel
           }
         })
 
-        await db.sellerOrder.update({
+        await db.bank.update({
           where: {
-            id: orderId
+            sellerId
           },
           data: {
-            status
+            pending: { decrement: (product.sellPrice - product.price) },
           }
         })
-
-      await db.bank.update({
-        where: {
-          sellerId
-        },
-        data: {
-          pending: {decrement: (product.sellPrice - product.price)},
-        }
-      })
-
-        return {
-          success: "Status updated",
-          status
-        };
       }
-    }
-  }
-
-  if (status === "delivered") {
-    for (const product of products) {
-      await db.bank.update({
-        where: {
-          sellerId
-        },
-        data: {
-          current: {increment: (product.sellPrice - product.price)},
-          total: {increment: (product.sellPrice - product.price)}
-        }
-      })
     }
 
     await db.sellerOrder.update({
@@ -333,10 +246,94 @@ export const UPDATE_SELLER_ORDER_STATUS = async ({orderId, products, status, sel
       }
     })
 
+    const seller = await db.seller.findUnique({
+      where: {
+        id: order.sellerId
+      },
+      include: {
+        user: {
+          select: {
+            clerkId: true
+          }
+        }
+      }
+    })
+
+    const { clerkId } = await getUser()
+  
+    await sendNotification({
+      trigger: "admin-to-seller-order",
+      recipients: [seller?.user?.clerkId || ""],
+      actor: {
+        id: clerkId,
+      },
+      data: {
+        redirectUrl: `/seller/order/list/${order.id}`,
+        invoice: order.invoiceId,
+        status
+      }
+    })
+              
     return {
       success: "Status updated",
       status
+    };
+  }
+
+  if (status === "delivered") {
+    for (const product of products) {
+      await db.bank.update({
+        where: {
+          sellerId
+        },
+        data: {
+          current: { increment: (product.sellPrice - product.price) },
+          total: { increment: (product.sellPrice - product.price) }
+        }
+      });
     }
+
+    await db.sellerOrder.update({
+      where: {
+        id: orderId
+      },
+      data: {
+        status
+      }
+    });
+
+    const seller = await db.seller.findUnique({
+        where: {
+          id: order.sellerId
+        },
+        include: {
+          user: {
+            select: {
+              clerkId: true
+            }
+          }
+        }
+    })
+    
+    const { clerkId } = await getUser()
+    
+    await sendNotification({
+      trigger: "admin-to-seller-order",
+      recipients: [seller?.user?.clerkId || ""],
+      actor: {
+        id: clerkId,
+      },
+      data: {
+        redirectUrl: `/seller/order/list/${order.id}`,
+        invoice: order.invoiceId,
+        status
+      }
+    })
+
+    return {
+      success: "Status updated",
+      status
+    };
   }
 
   if (status === "shipping") {

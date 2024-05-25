@@ -6,8 +6,8 @@ import { Button } from "@/components/ui/button"
 
 export function Pending() {
   return (
-    <div className="flex items-center justify-center min-h-screen">
-      <Card className="w-full max-w-md p-6 bg-white shadow-lg rounded-lg dark:bg-gray-800">
+    <div className="flex items-center justify-center h-[70vh]">
+      <Card className="w-full max-w-md p-6 shadow-lg rounded-lg">
         <CardHeader className="text-center">
           <ClockIcon className="h-12 w-12 text-yellow-500 mb-4 mx-auto" />
           <CardTitle className="text-2xl font-bold">Pending Account</CardTitle>

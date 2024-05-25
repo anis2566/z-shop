@@ -12,6 +12,7 @@ import {
 import { Card, CardContent } from "@/components/ui/card"
 
 import { db } from "@/lib/db"
+import SellerOrders from "@/components/dashboard/sellers/seller-details/orders"
 
 interface Props {
     params: {
@@ -69,7 +70,9 @@ const SellerDetails = async ({params}:Props) => {
             </Card>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="md:col-span-2">faf</div>
+                <div className="md:col-span-2">
+                    <SellerOrders />
+                </div>
                 <div>faf</div>
             </div>
         </div>

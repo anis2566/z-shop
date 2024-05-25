@@ -1,10 +1,12 @@
 "use server"
 
-import { db } from "@/lib/db"
-import { EditSellerImageSchema, EditSellerImageSchemaType, EditSellerInfoSchema, EditSellerInfoSchemaType, EditSellerPaymentSchema, EditSellerPaymentSchemaType, SellerSchema, SellerSchemaType, UpdateSellerStatusSchema, UpdateSellerStatusSchemaType } from "@/schema/seller"
-import { getUser } from "@/service/user.service"
 import { clerkClient } from "@clerk/nextjs/server"
 import { revalidatePath } from "next/cache"
+
+import { db } from "@/lib/db"
+import { EditSellerImageSchema, EditSellerImageSchemaType, EditSellerInfoSchema, EditSellerInfoSchemaType, EditSellerPaymentSchema, EditSellerPaymentSchemaType, SellerSchema, SellerSchemaType, UpdateSellerStatusSchema, UpdateSellerStatusSchemaType } from "@/schema/seller"
+import { getAdmin, getUser } from "@/service/user.service"
+import { sendNotification } from "@/service/notification.service"
 
 export const CREATE_SELLER = async (values: SellerSchemaType) => {
     const parseBody = SellerSchema.safeParse(values)
@@ -53,6 +55,20 @@ export const CREATE_SELLER = async (values: SellerSchemaType) => {
         },
         data: {
             role: "seller",
+        }
+    })
+
+    const {adminClerId} = await getAdmin()
+
+    await sendNotification({
+        trigger: "seller-request",
+        recipients: [adminClerId],
+        actor: {
+            id: clerkId,
+            name: newSeller.name
+        }, 
+        data: {
+            redirectUrl: `/dashboard/sellers/${newSeller.id}`
         }
     })
 
@@ -219,6 +235,13 @@ export const UPDATE_SELLER_STATUS = async (values: UpdateSellerStatusSchemaType)
     const seller = await db.seller.findUnique({
         where: {
             id: values.sellerId
+        },
+        include: {
+            user: {
+                select: {
+                    clerkId: true
+                }
+            }
         }
     })
 
@@ -232,6 +255,26 @@ export const UPDATE_SELLER_STATUS = async (values: UpdateSellerStatusSchemaType)
         },
         data: {
             status: values.status
+        }
+    })
+
+    await clerkClient.users.updateUser(seller.user.clerkId, {
+        publicMetadata: {
+            role: "seller",
+            status: values.status
+        }
+    });
+
+    const {adminClerId} = await getAdmin()
+
+    await sendNotification({
+        trigger: "seller-request-admin",
+        actor: {
+            id: adminClerId
+        },
+        recipients: [seller.user.clerkId],
+        data: {
+            status:values.status
         }
     })
 

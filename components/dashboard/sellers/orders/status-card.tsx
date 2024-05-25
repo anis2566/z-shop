@@ -25,9 +25,10 @@ interface Props {
     orderId: string;
     products: SellerOrderProduct[];
     sellerId: string;
+    status: string;
 }
 
-export const StatusCard = ({orderId, products, sellerId}:Props) => {
+export const StatusCard = ({orderId, products, sellerId, status:orderStatus}:Props) => {
     const [status, setStatus] = useState<string>("")
     const [trackingId, setTrackingId] = useState<string>("")
 
@@ -105,14 +106,14 @@ export const StatusCard = ({orderId, products, sellerId}:Props) => {
                     <CardDescription>Update order status</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                    <Select defaultValue={status} onValueChange={value => setStatus(value)} disabled={isPending}>
+                    <Select defaultValue={orderStatus} onValueChange={value => setStatus(value)} disabled={isPending}>
                         <SelectTrigger className="w-full">
                             <SelectValue placeholder="Status" />
                         </SelectTrigger>
                         <SelectContent>
                             {
                                 ["shipping", "delivered", "returned"].map((value, i) => (
-                                    <SelectItem value={value} key={i} className="capitalize">{value}</SelectItem>
+                                    <SelectItem value={value} key={i} className="capitalize" disabled={value === orderStatus}>{value}</SelectItem>
                                 ))
                             }
                         </SelectContent>

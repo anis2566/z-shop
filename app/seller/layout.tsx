@@ -7,19 +7,15 @@ const SellerLayout = async ({children}:{children:React.ReactNode}) => {
     const { sessionClaims } = auth()
     const status = sessionClaims?.status
 
-    // if (status === "pending") {
-    //     return (
-    //         <Pending />
-    //     )
-    // }
-
     return (
         <main className="w-full flex">
             <Sidebar />
             <section className="flex-1 md:ml-[220px]">
             <Navbar />
             <div className="p-2 md:p-4">
-                {children}
+                {
+                    status === "pending" ? <Pending /> : children
+                }    
             </div>
             </section>
         </main>
