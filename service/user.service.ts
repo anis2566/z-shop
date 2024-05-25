@@ -38,7 +38,7 @@ export const getSeller = async () => {
         throw new Error("Seller not found")
     }
 
-    return {sellerId: seller.id}
+    return {sellerId: seller.id, seller}
 }
 
 

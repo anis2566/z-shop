@@ -1,3 +1,5 @@
+import { Withdraw as PrismaWithdraw } from "@prisma/client"
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
@@ -10,7 +12,19 @@ import {
 } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 
-export const Withdraw = () => {
+import { cn } from "@/lib/utils"
+
+interface WithdrawWithSeller extends PrismaWithdraw {
+    seller: {
+        imageUrl: string;
+    }
+}
+
+interface Props {
+    withdraws: WithdrawWithSeller[]
+}
+
+export const Withdraw = ({withdraws}:Props) => {
     return (
         <Card>
             <CardHeader>
@@ -24,7 +38,7 @@ export const Withdraw = () => {
                     <TableHeader>
                         <TableRow>
                         <TableHead>
-                            Name
+                            Image
                         </TableHead>
                         <TableHead>
                             Amount
@@ -33,39 +47,31 @@ export const Withdraw = () => {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        <TableRow>
-                            <TableCell className="py-2">
-                                <div className="font-medium">Anis</div>
-                            </TableCell>
-                            <TableCell className="py-2">
-                                1400
-                            </TableCell>
-                            <TableCell className="py-2">
-                                <Badge>Pending</Badge>
-                            </TableCell>
-                        </TableRow>
-                        <TableRow>
-                            <TableCell className="py-2">
-                                <div className="font-medium">Anis</div>
-                            </TableCell>
-                            <TableCell className="py-2">
-                                1400
-                            </TableCell>
-                            <TableCell className="py-2">
-                                <Badge>Pending</Badge>
-                            </TableCell>
-                        </TableRow>
-                        <TableRow>
-                            <TableCell className="py-1">
-                                <div className="font-medium">Anis</div>
-                            </TableCell>
-                            <TableCell className="py-1">
-                                1400
-                            </TableCell>
-                            <TableCell className="py-1">
-                                <Badge>Pending</Badge>
-                            </TableCell>
-                        </TableRow>
+                        {
+                            withdraws.map((withdraw) => (
+                                <TableRow key={withdraw.id}>
+                                    <TableCell className="py-2">
+                                        <Avatar>
+                                            <AvatarImage src={withdraw.seller.imageUrl} />
+                                            <AvatarFallback>W</AvatarFallback>
+                                        </Avatar>
+                                    </TableCell>
+                                    <TableCell className="py-2">
+                                        {withdraw.amount}
+                                    </TableCell>
+                                    <TableCell className="py-2">
+                                        <Badge
+                                            className={cn("text-white capitalize",
+                                                withdraw.status === "pending" && "bg-amber-500",
+                                                withdraw.status === "success" && "bg-green-500",
+                                                withdraw.status === "cancelled" && "bg-rose-500",
+                                            )}
+                                        >{withdraw.status}
+                                        </Badge>    
+                                    </TableCell>
+                                </TableRow>
+                            ))
+                        }
                     </TableBody>
                 </Table>
             </CardContent>

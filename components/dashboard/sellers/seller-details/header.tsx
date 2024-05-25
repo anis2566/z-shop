@@ -1,18 +1,16 @@
 "use client"
 
-import { CalendarClock, SearchIcon } from "lucide-react"
+import { CalendarClock } from "lucide-react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import queryString from "query-string"
 import { format } from "date-fns"
-import { useEffect, useState } from "react"
+import { useState } from "react"
 
-import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 
-import { useDebounce } from "@/hooks/use-debounce"
 import { cn } from "@/lib/utils"
 
 export const Header = () => {
@@ -83,7 +81,7 @@ export const Header = () => {
                             <Button
                             variant={"outline"}
                             className={cn(
-                                "w-auto pl-3 text-left font-normal",
+                                "hidden sm:flex gap-x-2 w-auto pl-3 text-left font-normal",
                                 date && "text-muted-foreground"
                             )}
                             >
@@ -116,6 +114,30 @@ export const Header = () => {
                     </SelectContent>
                 </Select>
             </div>
+            <Popover>
+                <PopoverTrigger asChild>
+                    <Button
+                    variant={"outline"}
+                    className={cn(
+                        "sm:hidden gap-x-2 w-full pl-3 text-left font-normal",
+                        date && "text-muted-foreground"
+                    )}
+                    >
+                    {date ? (
+                        format(date, "PPP")
+                    ) : (
+                        <span>Pick a date</span>
+                    )}
+                    <CalendarClock className="ml-auto h-4 w-4 opacity-50" />
+                    </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                    mode="single"
+                    onSelect={(date) => date && handleDateChange(date)}
+                />
+                </PopoverContent>
+            </Popover>
         </div>
     )
 }

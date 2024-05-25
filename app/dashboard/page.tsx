@@ -8,8 +8,24 @@ import { WeeklyCharts } from "@/components/dashboard/home/weekly-charts"
 import { MostSaleProductChart } from "@/components/dashboard/home/most-sale-product-chart"
 import { RecentOrders } from "@/components/dashboard/home/recent-orders"
 import { Withdraw } from "@/components/dashboard/home/withdraw"
+import { db } from "@/lib/db"
 
-const Dashboard = () => {
+const Dashboard = async () => {
+
+    const withdraws = await db.withdraw.findMany({
+        include: {
+            seller: {
+                select: {
+                    imageUrl: true
+                }
+            }
+        },
+        orderBy: {
+            createdAt: "desc"
+        },
+        take: 3
+    })
+
     return (
         <main className="flex flex-1 flex-col gap-4 md:gap-8">
             <div className="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-4">
@@ -43,7 +59,7 @@ const Dashboard = () => {
 
             <div className="grid flex-1 items-start gap-4 md:gap-8 lg:grid-cols-3 xl:grid-cols-3">
                 <RecentOrders />
-                <Withdraw />
+                <Withdraw withdraws={withdraws} />
             </div>
         </main>
     )

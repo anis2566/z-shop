@@ -10,17 +10,31 @@ import {
     BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 import { Card, CardContent } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
 
 import { db } from "@/lib/db"
 import SellerOrders from "@/components/dashboard/sellers/seller-details/orders"
+import { cn } from "@/lib/utils"
+import { MostSaleProductChart } from "@/components/dashboard/sellers/seller-details/most-sale-product-chart"
 
 interface Props {
     params: {
         sellerId: string;
+    },
+    searchParams: {
+      status: string;
+      page: string;
+      perPage: string;
+      date: Date;
     }
 }
 
-const SellerDetails = async ({params}:Props) => {
+const SellerDetails = async ({ params, searchParams }: Props) => {
+    const {status, date:dateString} = searchParams
+    const itemsPerPage = parseInt(searchParams.perPage) || 5;  
+    const currentPage = parseInt(searchParams.page) || 1;
+
+    const date = dateString ? new Date(dateString) : null;
     
     const seller = await db.seller.findUnique({
         where: {
@@ -29,7 +43,75 @@ const SellerDetails = async ({params}:Props) => {
     })
 
     if (!seller) redirect("/dashboard")
-    
+
+    const orders = await db.sellerOrder.findMany({
+        where: {
+            sellerId: params.sellerId,
+            ...(date && {
+                createdAt: {
+                    gte: new Date(date.setHours(0, 0, 0, 0)), 
+                    lt: new Date(date.setHours(23, 59, 59, 999)) 
+                }
+            }),
+            ...(status !== "all" && { status })
+        },
+        include: {
+            products: {
+                include: {
+                    product: {
+                        select: {
+                            featureImageUrl: true
+                        }
+                    }
+                }
+            }
+        },
+        orderBy: {
+            createdAt: "desc"
+        },
+        skip: (currentPage - 1) * itemsPerPage,
+        take: itemsPerPage,
+    })
+
+    const totalOrder = await db.sellerOrder.count({
+        where: {
+            sellerId: params.sellerId,
+            ...(date && {
+                createdAt: {
+                    gte: new Date(date.setHours(0, 0, 0, 0)), 
+                    lt: new Date(date.setHours(23, 59, 59, 999)) 
+                }
+            }),
+            ...(status !== "all" && { status })
+        }
+    })
+
+    const mostSoldProducts = await db.sellerOrderProduct.groupBy({
+        by: ['productId'],
+        where: {
+            order: {
+                sellerId: params.sellerId,
+            },
+        },
+        _sum: {
+            quantity: true,
+        },
+        orderBy: {
+            _sum: {
+                quantity: 'desc',
+            },
+        },
+        take: 5,
+    }).then(results => Promise.all(results.map(async result => {
+        const product = await db.product.findUnique({ where: { id: result.productId } });
+        return {
+            name: product?.name || "",
+            sales: result._sum.quantity ?? 0,
+        };
+    })));
+
+    const totalPage = totalOrder / itemsPerPage
+
     return (
         <div className="w-full space-y-8">
             <Breadcrumb>
@@ -61,19 +143,30 @@ const SellerDetails = async ({params}:Props) => {
                             }}
                         width="100"
                     />
-                    <div className="grid gap-1 text-sm md:gap-2">
+                    <div className="space-y-1">
                         <div className="font-semibold text-xl">Hello, <span className="text-primary">{seller.name}</span></div>
                         <div>{seller.email}</div>
                         <div>{seller.phone}</div>
+                        <Badge
+                            className={cn("capitalize text-white",
+                                seller.status === "pending" && "bg-amber-500",
+                                seller.status === "active" && "bg-green-500",
+                                seller.status === "inactive" && "bg-rose-500",
+                            )}
+                        >
+                            {seller.status}
+                        </Badge>
                     </div>
                 </CardContent>
             </Card>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 h-full">
                 <div className="md:col-span-2">
-                    <SellerOrders />
+                    <SellerOrders orders={orders} totalPage={totalPage} />
                 </div>
-                <div>faf</div>
+                <div className="min-h-[300px]">
+                    <MostSaleProductChart products={mostSoldProducts} />
+                </div>
             </div>
         </div>
     )

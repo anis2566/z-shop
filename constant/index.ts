@@ -15,7 +15,9 @@ import {
   ClipboardList,
   Store,
   UserCog,
-  Radio
+  Radio,
+  HandCoins,
+  Flame
 } from "lucide-react";
 
 export const DASHBOARD_SIDEBAR = [
@@ -73,6 +75,11 @@ export const DASHBOARD_SELLER_SIDEBAR = [
     href: "/dashboard/sellers/orders",
     icon: ShoppingCart,
   },
+  {
+    label: "Withdraw",
+    href: "/dashboard/sellers/withdraw",
+    icon: HandCoins,
+  },
 ] as const;
 
 export const SELLER_DASHBOARD_SIDEBAR = [
@@ -97,8 +104,33 @@ export const SELLER_DASHBOARD_SIDEBAR = [
         icon: ClipboardList
     },
     {
+        label: "Withdraw",
+        href: "/seller/withdraw",
+        icon: HandCoins
+    },
+    {
         label: "Profile",
         href: "/seller/profile",
         icon: UserCog
     },
 ] as const;
+
+
+export const NAVBAR_DATA = [
+    {
+        label: "Home",
+        path: "/"
+    },
+    {
+        label: "Shop",
+        path: "/shop"
+    },
+    {
+        label: "About",
+        path: "/about"
+    },
+    {
+        label: "Contact",
+        path: "/contact"
+    },
+]

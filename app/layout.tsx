@@ -9,6 +9,7 @@ import AuthProvider from "@/providers/auth-provider"
 import { Toaster } from "@/components/ui/sonner"
 import { QueryProvider } from "@/providers/query-provider"
 import { AppKnockProviders } from "@/providers/knock-provider";
+import { ModalProvider } from "@/providers/modal-provider";
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -44,6 +45,7 @@ export default function RootLayout({
                 {children}
                 <NextTopLoader showSpinner={false} color="#16A34A" />
                 <Toaster />
+                <ModalProvider />
               </AppKnockProviders>
             </QueryProvider>
           </ThemeProvider>

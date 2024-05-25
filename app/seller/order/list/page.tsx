@@ -7,12 +7,9 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
-// import {OrderList} from "@/components/seller/order-list"
 
 import { db } from "@/lib/db"
-import { getSeller, getUser } from "@/service/user.service";
-import { redirect } from "next/navigation";
-// import { getUserId } from "@/service/user.service";
+import { getSeller } from "@/service/user.service";
 
 interface SearchPageProps {
   searchParams: {
