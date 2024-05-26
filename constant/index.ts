@@ -118,6 +118,11 @@ export const SELLER_DASHBOARD_SIDEBAR = [
 
 export const NAVBAR_DATA = [
     {
+        label: "Deal",
+        path: "/deal",
+        Icon: Flame
+    },
+    {
         label: "Home",
         path: "/"
     },

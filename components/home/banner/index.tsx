@@ -14,7 +14,7 @@ import {
 export function Banner() {
     return (
         <Carousel
-            className="w-full max-w-[1450px] mx-auto mt-5 max-h-[400px]"
+            className="w-full max-w-[1400px] mx-auto mt-5 max-h-[400px]"
             plugins={[
                 Autoplay({
                 delay: 5000,

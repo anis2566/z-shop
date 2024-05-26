@@ -113,3 +113,88 @@ export const GET_PRODUCTS_FOR_SELLER = async () => {
         products
     }
 }
+
+
+export const GET_FEATURE_PRODUCTS = async () => {
+    const products = await db.product.findMany()
+
+    return {
+        products
+    }
+}
+
+
+export const GET_POPULAR_PRODUCTS = async () => {
+    const products = await db.product.findMany({
+        include: {
+            stocks: true,
+            brand: true,
+            category: true
+        }
+    });
+
+  return {
+    products,
+  };
+};
+
+
+export const GET_DAILY_BEST_DEAL_PRODUCTS = async () => {
+  const products = await db.product.findMany({
+    include: {
+      stocks: true,
+      brand: true,
+      category: true,
+    },
+  });
+
+  return {
+    products,
+  };
+};
+
+
+
+export const GET_DEAL_OF_THE_DAY_PRODUCTS = async () => {
+  const products = await db.product.findMany({
+    include: {
+      stocks: true,
+      brand: true,
+      category: true,
+    },
+  });
+
+  return {
+    products,
+  };
+};
+
+
+
+export const GET_TOP_SELLING_PRODUCTS = async () => {
+    const products = await db.product.findMany()
+    
+    return {
+    products,
+    };
+};
+
+
+
+export const GET_RECENTLY_ADDID_PRODUCTS = async () => {
+  const products = await db.product.findMany();
+
+  return {
+    products,
+  };
+};
+
+
+
+export const GET_TOP_RATED_PRODUCTS = async () => {
+  const products = await db.product.findMany();
+
+  return {
+    products,
+  };
+};

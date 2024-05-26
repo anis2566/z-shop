@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter as FontSans } from "next/font/google"
 import NextTopLoader from 'nextjs-toploader';
+import { Toaster as ReactHotToast } from 'react-hot-toast';
 
 import "./globals.css";
 import { cn } from "@/lib/utils";
@@ -45,6 +46,7 @@ export default function RootLayout({
                 {children}
                 <NextTopLoader showSpinner={false} color="#16A34A" />
                 <Toaster />
+                <ReactHotToast />
                 <ModalProvider />
               </AppKnockProviders>
             </QueryProvider>

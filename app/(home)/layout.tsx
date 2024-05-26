@@ -1,3 +1,4 @@
+import { Footer } from "@/components/home/footer"
 import { Header } from "@/components/home/header"
 import { Navbar } from "@/components/home/navbar"
 
@@ -7,6 +8,7 @@ const HomeLayout = ({children}:{children:React.ReactNode}) => {
             <Header />
             <Navbar />
             {children}
+            <Footer />
         </div>
     )
 }

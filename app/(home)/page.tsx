@@ -1,15 +1,21 @@
 import { Banner } from "@/components/home/banner"
+import { DailyBestDeal } from "@/components/home/daily-best-deal"
+import { DealOfTheDay } from "@/components/home/deal-of-the-day"
 import { FeatureCategory } from "@/components/home/feature-category"
-import SkeletonWrapper from "@/components/skeleton-wrapper"
+import { FeatureProducts } from "@/components/home/feature-products"
+import { PopularProducts } from "@/components/home/popular-products"
+import { ProductHouse } from "@/components/home/product-house"
 
 const Home = () => {
   return (
     <div className="w-full px-4 space-y-[60px]">
       <Banner />
       <FeatureCategory />
-      <SkeletonWrapper isLoading={true}>
-        lfalflaflaf
-      </SkeletonWrapper>
+      <FeatureProducts />
+      <PopularProducts />
+      <DailyBestDeal />
+      <DealOfTheDay />
+      <ProductHouse />
     </div>
   )
 }
