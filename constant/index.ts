@@ -17,7 +17,8 @@ import {
   UserCog,
   Radio,
   HandCoins,
-  Flame
+  Flame,
+  UserRoundCog
 } from "lucide-react";
 
 export const DASHBOARD_SIDEBAR = [
@@ -139,3 +140,27 @@ export const NAVBAR_DATA = [
         path: "/contact"
     },
 ]
+
+
+export const USER_NAVBAR = [
+    {
+        label: "Dashboard",
+        href: "/account",
+        icon: LayoutDashboard
+    },
+    {
+        label: "Orders",
+        href: "/account/orders",
+        icon: ShoppingCart
+    },
+    {
+        label: "Address",
+        href: "/account/address",
+        icon: MapPin
+    },
+    {
+        label: "Profile",
+        href: "/account/profile",
+        icon: UserRoundCog
+    },
+] as const;

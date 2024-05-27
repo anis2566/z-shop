@@ -5,6 +5,7 @@ import Image from "next/image"
 import { SignedIn, SignedOut, SignInButton  } from "@clerk/nextjs"
 import toast from "react-hot-toast"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -20,8 +21,8 @@ import {
 import { useCart } from "@/store/use-cart"
 
 const Cart = () => {
-    const {cart, removeFromCart, incrementQuantity, decrementQuantity, updateColor, updateSize} = useCart()
-
+    const { cart, removeFromCart, incrementQuantity, decrementQuantity, updateColor, updateSize } = useCart()
+    const router = useRouter()
 
     const handleRemove = (id: string) => {
         removeFromCart(id)
@@ -34,7 +35,11 @@ const Cart = () => {
     
     const total = cart.reduce((acc, curr) => {
         return acc + (curr.price * curr.quantity)
-    },0)
+    }, 0)
+    
+    const handleCheckout = () => {
+        router.push("/checkout")
+    }
 
     return (
         <div className="w-full space-y-6 p-3 mt-6">
@@ -161,7 +166,7 @@ const Cart = () => {
                             </div>
                             <SignedIn>
                                 <Link href="/checkout">
-                                    <Button className="w-full md:w-auto" size="lg" disabled={cart.length < 1}>
+                                    <Button className="w-full md:w-auto" size="lg" disabled={cart.length < 1} onClick={handleCheckout}>
                                         Proceed to Checkout
                                     </Button>
                                 </Link>
