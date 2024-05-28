@@ -1,6 +1,10 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { auth, currentUser } from "@clerk/nextjs/server"
+import { currentUser } from "@clerk/nextjs/server"
 import Image from "next/image"
+import { format } from "date-fns"
+import Link from "next/link"
+import { Eye } from "lucide-react"
+
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   Table,
   TableBody,
@@ -10,11 +14,9 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
-import { format } from "date-fns"
-import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Eye } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+
 import { Wishlist } from "@/components/home/account/wishlist"
 import { Review } from "@/components/home/account/review"
 
@@ -46,6 +48,7 @@ const Account = async () => {
             <Card>
                 <CardHeader>
                     <CardTitle>Recent Orders</CardTitle>
+                    <CardDescription>Explore your lates orders</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <Table>

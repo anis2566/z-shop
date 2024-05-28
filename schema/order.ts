@@ -1,0 +1,79 @@
+import { z } from "zod";
+
+export const OrderSchema = z
+  .object({
+    addressId: z.string().optional(),
+    recepient: z.string(),
+    division: z.string(),
+    address: z.string(),
+    phone: z.string(),
+    paymentMethod: z.string().min(1, {
+      message: "required",
+    }),
+    deliveryFee: z.number().min(1, {
+      message: "required",
+    }),
+  })
+  .superRefine((data, ctx) => {
+    if (!data.addressId) {
+      if (data.recepient.length < 4) {
+        ctx.addIssue({
+          path: ["recepient"],
+          message: "required",
+          code: z.ZodIssueCode.too_small,
+          minimum: 4,
+          inclusive: true,
+          type: "string",
+        });
+      }
+      if (data.division.length < 1) {
+        ctx.addIssue({
+          path: ["division"],
+          message: "required",
+          code: z.ZodIssueCode.too_small,
+          minimum: 1,
+          inclusive: true,
+          type: "string",
+        });
+      }
+      if (data.address.length < 10) {
+        ctx.addIssue({
+          path: ["address"],
+          message: "required",
+          code: z.ZodIssueCode.too_small,
+          minimum: 10,
+          inclusive: true,
+          type: "string",
+        });
+      }
+      if (data.phone.length < 10) {
+        ctx.addIssue({
+          path: ["phone"],
+          message: "required",
+          code: z.ZodIssueCode.too_small,
+          minimum: 10,
+          inclusive: true,
+          type: "string",
+        });
+      }
+    }
+  });
+
+export type OrderSchemaType = z.infer<typeof OrderSchema>;
+
+export const OrderProductSchema = z.object({
+  productId: z.string().min(1, {
+    message: "required",
+  }),
+  price: z.number().min(1, {
+    message: "required",
+  }),
+  quantity: z.number().min(1, {
+    message: "required",
+  }),
+  size: z.string().optional(),
+  color: z.string().optional(),
+});
+
+
+export type OrderProductSchemaType = z.infer<typeof OrderProductSchema>

@@ -1,7 +1,9 @@
+import Image from "next/image"
+
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+
 import { db } from "@/lib/db"
-import Image from "next/image"
 
 export const Review = async () => {
     const products = await db.product.findMany()

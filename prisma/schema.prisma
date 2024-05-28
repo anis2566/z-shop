@@ -22,9 +22,12 @@ model User {
   role String @default("user")
 
   seller Seller?
+  address Address[]
+  orders Order[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
 }
 
 model Seller {
@@ -48,6 +51,8 @@ model Seller {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([userId])
 }
 
 model Bank {
@@ -62,6 +67,8 @@ model Bank {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([sellerId])
 }
 
 model Withdraw {
@@ -76,6 +83,8 @@ model Withdraw {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([sellerId])
 }
 
 model Brand {
@@ -129,9 +138,12 @@ model Product {
 
   stocks  Stock[]
   sellerOrderProducts SellerOrderProduct[]
+  orderProducts OrderProduct[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([categoryId, brandId])
 }
 
 model Stock {
@@ -145,6 +157,8 @@ model Stock {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([productId])
 }
 
 model Coupon {
@@ -180,6 +194,8 @@ model SellerOrder {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([sellerId])
 }
 
 model SellerOrderProduct {
@@ -198,4 +214,71 @@ model SellerOrderProduct {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([productId, orderId])
+}
+
+
+model Address {
+  id String @id @default(uuid())
+  title String?
+  recepient String
+  division String
+  address String
+  phone String
+
+  userId String?
+  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  orders Order[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
+
+
+model Order {
+  id String @id @default(uuid())
+  invoiceId String
+  total Int
+  deliveryFee Int
+  status String @default("pending")
+  paymentMethod String
+  paymentStatus String? 
+  trackingId String?
+  
+  userId String
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  products OrderProduct[]
+
+  addressId String
+  address Address @relation(fields: [addressId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([addressId, userId])
+}
+
+
+model OrderProduct {
+  id String @id @default(uuid())
+  price Int
+  quantity Int
+  size String?
+  color String?  
+
+  orderId String
+  order Order @relation(fields: [orderId], references: [id])
+
+  productId String
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([orderId, productId])
 }

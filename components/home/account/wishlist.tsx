@@ -1,13 +1,25 @@
 "use client"
 
+import Image from "next/image"
+import Link from "next/link"
+import { ShoppingCart, X } from "lucide-react"
+
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+
+import { useCart } from "@/store/use-cart"
 import { useWishlist } from "@/store/use-wishlist"
-import { ShoppingCart, X } from "lucide-react"
-import Image from "next/image"
+import { ProductWithFeature } from "@/@types"
 
 export const Wishlist = () => {
-    const {wishlist} = useWishlist()
+    const { wishlist, removeFromWishlist } = useWishlist()
+    const { addToCart } = useCart()
+    
+    const handleAddtoCart = (product: ProductWithFeature) => {
+        removeFromWishlist(product.id)
+        addToCart({product: product, price: product.discountPrice || product.price, quantity:1})
+    }
+
     return (
         <Card>
             <CardHeader className="pb-4">
@@ -35,7 +47,7 @@ export const Wishlist = () => {
                                     <p className="text-sm text-gray-500 dark:text-gray-400">{item.discountPrice || item.price}</p>
                                 </div>
                                 <div className="ml-auto flex flex-col md:flex-row gap-2">
-                                    <Button size="sm" variant="outline" className="flex items-center gap-x-1">
+                                    <Button size="sm" variant="outline" className="flex items-center gap-x-1" onClick={() => handleAddtoCart(item)}>
                                         <ShoppingCart className="h-5 w-5" />
                                         Cart
                                     </Button>
@@ -47,6 +59,17 @@ export const Wishlist = () => {
                             </div>
                         </div>
                     ))
+                }
+
+                {
+                    wishlist.length === 0 && (
+                        <div className="flex flex-col items-center space-y-2">
+                            <p className="text-indigo-500 text-center italic">Wishlist is empty</p>
+                            <Button variant="outline" className="border-primary" asChild>
+                                <Link href="/">Continue Shopping</Link>
+                            </Button>
+                        </div>
+                    )
                 }
             </CardContent>
         </Card>

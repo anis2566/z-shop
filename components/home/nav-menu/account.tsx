@@ -43,7 +43,7 @@ export const Account = async () => {
                             </Avatar>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                            <DropdownMenuItem>
+                            <DropdownMenuItem asChild>
                                 <Link 
                                     href="/account"
                                     className="flex items-center gap-x-2"
