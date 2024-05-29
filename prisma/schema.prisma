@@ -27,7 +27,6 @@ model User {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
 }
 
 model Seller {
@@ -51,8 +50,6 @@ model Seller {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  @@index([userId])
 }
 
 model Bank {
@@ -67,8 +64,6 @@ model Bank {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  @@index([sellerId])
 }
 
 model Withdraw {
@@ -83,8 +78,6 @@ model Withdraw {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  @@index([sellerId])
 }
 
 model Brand {
@@ -142,8 +135,6 @@ model Product {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  @@index([categoryId, brandId])
 }
 
 model Stock {
@@ -157,8 +148,6 @@ model Stock {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  @@index([productId])
 }
 
 model Coupon {
@@ -194,8 +183,6 @@ model SellerOrder {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  @@index([sellerId])
 }
 
 model SellerOrderProduct {
@@ -214,8 +201,6 @@ model SellerOrderProduct {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  @@index([productId, orderId])
 }
 
 
@@ -234,8 +219,6 @@ model Address {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  @@index([userId])
 }
 
 
@@ -254,13 +237,11 @@ model Order {
 
   products OrderProduct[]
 
-  addressId String
-  address Address @relation(fields: [addressId], references: [id])
+  addressId String?
+  address   Address? @relation(fields: [addressId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  @@index([addressId, userId])
 }
 
 
@@ -279,6 +260,4 @@ model OrderProduct {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  @@index([orderId, productId])
 }

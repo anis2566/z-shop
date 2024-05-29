@@ -7,7 +7,7 @@ import { USER_NAVBAR } from "@/constant"
 import { cn } from "@/lib/utils"
 
 export const Sidebar = () => {
-    const pathname = usePathname() 
+    const pathname = usePathname()
     return (
         <div className="w-[200px] flex-shrink-0 border-r-2 border-muted">
             {

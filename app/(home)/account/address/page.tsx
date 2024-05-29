@@ -8,6 +8,11 @@ import { db } from "@/lib/db"
 
 const Address = async () => {
     const address = await db.address.findMany({
+        where:{
+            title: {
+                not: ""
+            }
+        },
         orderBy: {
             createdAt: "desc"
         }

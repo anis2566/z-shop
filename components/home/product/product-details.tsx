@@ -15,6 +15,7 @@ import { calculateDiscountPercentage } from "@/lib/utils"
 import { useProduct } from "@/store/use-product"
 import { ProductWithFeature } from "@/@types"
 import { useCart } from "@/store/use-cart"
+import { Skeleton } from "@/components/ui/skeleton"
 
 interface Props {
     product: ProductWithFeature
@@ -154,6 +155,29 @@ export const ProductInfo = ({product}:Props) => {
                     <HeartIcon className="w-4 h-4 mr-2" />
                     Add to wishlist
                 </Button>
+            </div>
+        </div>
+    )
+}
+
+
+export const ProductInfoSkeleton = () => {
+    return (
+        <div className="space-y-3">
+            <div className="flex items-center gap-x-2">
+                <Skeleton className="w-20 h-6" />
+            </div>
+            <div className="space-y-2">
+                <Skeleton className="h-8 w-3/4" />
+                <Skeleton className="h-4 w-16" />
+                <Skeleton className="w-24 h-6" />
+            </div>
+            <Skeleton className="h-10 w-24" />
+            <Skeleton className="h-4 w-24" />
+                <Skeleton className="h-6 w-16" />
+            <div className="flex flex-col gap-2 min-[400px]:flex-row">
+                <Skeleton className="h-10 w-32" />
+                <Skeleton className="h-10 w-32" />
             </div>
         </div>
     )

@@ -158,9 +158,4 @@ export const USER_NAVBAR = [
         href: "/account/address",
         icon: MapPin
     },
-    {
-        label: "Profile",
-        href: "/account/profile",
-        icon: UserRoundCog
-    },
 ] as const;

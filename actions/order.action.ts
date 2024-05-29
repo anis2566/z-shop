@@ -1,114 +1,273 @@
-"use server"
+"use server";
+
+import { Order } from "@prisma/client";
 
 import { db } from "@/lib/db";
 import { generateInvoiceId } from "@/lib/utils";
-import { OrderProductSchemaType, OrderSchema, OrderSchemaType } from "@/schema/order"
+import {
+  OrderProductSchemaType,
+  OrderSchema,
+  OrderSchemaType,
+} from "@/schema/order";
+import { sendNotification } from "@/service/notification.service";
 import { getAdmin, getUser } from "@/service/user.service";
+import { revalidatePath } from "next/cache";
 
 type CreateOrder = {
-    order: OrderSchemaType;
-    products: OrderProductSchemaType[]
-}
+  order: OrderSchemaType;
+  products: OrderProductSchemaType[];
+};
 
-export const CREATE_ORDER = async ({order, products}:CreateOrder) => {
-    const parseOrder = OrderSchema.safeParse(order)
+export const CREATE_ORDER = async ({ order, products }: CreateOrder) => {
+  const parseOrder = OrderSchema.safeParse(order);
 
-    if(!parseOrder.success) {
-        throw new Error("Invalid input value")
-    }
+  if (!parseOrder.success) {
+    throw new Error("Invalid input value");
+  }
 
-    const {addressId, deliveryFee, paymentMethod, recepient, division, address, phone} = parseOrder.data
-    const {userId} = await getUser()
+  const {
+    addressId,
+    deliveryFee,
+    paymentMethod,
+    recepient,
+    division,
+    address,
+    phone,
+  } = parseOrder.data;
+  const { userId, clerkId, user } = await getUser();
 
-    const total = products.reduce((acc, curr) => acc + curr.price,0)
+  const total = products.reduce((acc, curr) => acc + curr.price, 0);
 
-    if(addressId) {
-        await db.order.create({
-            data: {
-                userId,
-                invoiceId: generateInvoiceId(),
-                total,
-                deliveryFee,
-                paymentMethod,
-                products: {
-                    createMany: {
-                        data: products
-                    }
-                },
-                addressId
-            }
-        })
+  let newOrder: Order;
 
+  if (addressId) {
+    newOrder = await db.order.create({
+      data: {
+        userId,
+        invoiceId: generateInvoiceId(),
+        total,
+        deliveryFee,
+        paymentMethod,
+        products: {
+          createMany: {
+            data: products,
+          },
+        },
+        addressId,
+      },
+    });
+  } else {
+    const newAddress = await db.address.create({
+      data: {
+        recepient,
+        division,
+        address,
+        phone,
+      },
+    });
+
+    newOrder = await db.order.create({
+      data: {
+        userId,
+        invoiceId: generateInvoiceId(),
+        total,
+        deliveryFee,
+        paymentMethod,
+        products: {
+          createMany: {
+            data: products,
+          },
+        },
+        addressId: newAddress.id,
+      },
+    });
+  }
+
+  for (const product of products) {
+    if (product.size) {
+      const stock = await db.stock.findFirst({
+        where: {
+          productId: product.productId,
+        },
+      });
+
+      if (!stock) {
+        throw new Error("Stock not found");
+      }
+
+      await db.stock.update({
+        where: {
+          id: stock.id,
+        },
+        data: {
+          stock: { decrement: product.quantity },
+        },
+      });
+
+      await db.product.update({
+        where: {
+          id: product.productId,
+        },
+        data: {
+          totalStock: { decrement: product.quantity },
+        },
+      });
     } else {
-        const newAddress = await db.address.create({
-            data: {
-                recepient,
-                division,
-                address,
-                phone
-            }
-        })
-
-        await db.order.create({
-            data: {
-                userId,
-                invoiceId: generateInvoiceId(),
-                total,
-                deliveryFee,
-                paymentMethod,
-                products: {
-                    createMany: {
-                        data: products
-                    }
-                },
-                addressId: newAddress.id
-            }
-        })
+      const test = await db.product.update({
+        where: {
+          id: product.productId,
+        },
+        data: {
+          totalStock: { decrement: product.quantity },
+        },
+      });
     }
+  }
 
-    for(const product of products) {
-        if(product.size) {
-            const stock = await db.stock.findFirst({
-                where: {
-                    productId: product.productId
-                }
-            })
+  const { adminClerId } = await getAdmin();
 
-            if(!stock) {
-                throw new Error("Stock not found")
+  await sendNotification({
+    trigger: "customer-order",
+    recipients: [adminClerId],
+    actor: {
+      id: clerkId,
+      name: user.name,
+    },
+    data: {
+      redirectUrl: `/dashboard/orders/${newOrder.id}`,
+      invoice: newOrder.invoiceId,
+    },
+  });
+
+  return {
+    success: "Order placed",
+  };
+};
+
+type UpdateOrder = {
+  orderId: string;
+  products: OrderProductSchemaType[];
+  status: string;
+};
+
+export const UPDATE_ORDER = async ({
+  orderId,
+  products,
+  status,
+}: UpdateOrder) => {
+  const order = await db.order.findUnique({
+    where: {
+      id: orderId,
+    },
+  });
+
+  if (!order) {
+    throw new Error("Order not found");
+  }
+
+  if (status === "returned") {
+    for (const product of products) {
+      if (!product.size) {
+        await db.product.update({
+          where: {
+            id: product.productId,
+          },
+          data: {
+            totalStock: { increment: product.quantity },
+          },
+        });
+      } else {
+        const stock = await db.stock.findFirst({
+          where: {
+            productId: product.productId,
+            size: product.size,
+          },
+        });
+
+        await db.stock.update({
+          where: {
+            id: stock?.id,
+          },
+          data: {
+            stock: { increment: product.quantity },
+          },
+        });
+
+        await db.product.update({
+          where: {
+            id: product.productId,
+          },
+          data: {
+            totalStock: { increment: product.quantity },
+          },
+        });
+      }
+    }
+  }
+
+  await db.order.update({
+    where: {
+      id: orderId,
+    },
+    data: {
+      status,
+    },
+  });
+
+  const user = await db.user.findUnique({
+    where: {
+      id: order.userId,
+    },
+  });
+  const { adminClerId } = await getAdmin();
+
+  await sendNotification({
+    trigger: "customer-order-admin",
+    actor: {
+      id: adminClerId,
+    },
+    recipients: [user?.clerkId || ""],
+    data: {
+      status,
+      redirectUrl: `/account/orders/${order.id}`,
+      invoice: order.invoiceId,
+    },
+  });
+
+  revalidatePath(`/dashboard/orders/${orderId}`);
+
+  return {
+    success: "Status updated",
+  };
+};
+
+
+
+export const GET_USER_ORDER = async () => {
+  const {userId} = await getUser()
+
+  const orders = await db.order.findMany({
+    where: {
+      userId
+    },
+    include: {
+      products: {
+        include: {
+          product: {
+            select: {
+              featureImageUrl: true
             }
-
-            await db.stock.update({
-                where: {
-                    id: stock.id
-                },
-                data: {
-                    stock: {decrement: product.quantity}
-                }
-            })
-
-            await db.product.update({
-                where: {
-                    id: product.productId
-                },
-                data: {
-                    totalStock: {decrement: product.quantity}
-                }
-            })
-        } else {
-            const test = await db.product.update({
-                where: {
-                    id: product.productId
-                },
-                data: {
-                    totalStock: {decrement: product.quantity}
-                }
-            })
+          }
         }
-    }
+      }
+    },
+    orderBy: {
+      createdAt: "desc"
+    },
+    take: 3
+  })
 
-    return {
-        success: "Order placed"
-    }
-
+  return {
+    orders
+  }
 }

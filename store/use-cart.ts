@@ -28,6 +28,7 @@ interface CartState {
   decrementQuantity: (productId: string) => void;
   updateSize: (productId: string, size: string) => void;
   updateColor: (productId: string, color: string) => void;
+  resetCart: () => void;
 }
 
 export const useCart = create<CartState>()(
@@ -101,6 +102,9 @@ export const useCart = create<CartState>()(
           );
           return { cart: updatedCart };
         });
+      },
+      resetCart: () => {
+        set({ cart: [] });
       },
     }),
     {

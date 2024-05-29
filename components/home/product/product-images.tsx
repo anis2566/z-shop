@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/carousel"
 
 import {cn} from "@/lib/utils"
+import { Skeleton } from "@/components/ui/skeleton"
 
 interface ProductImagesProps {
     featureImage: string,
@@ -66,6 +67,28 @@ export const ProductImages = ({images, featureImage}:ProductImagesProps) => {
                     <CarouselPrevious />
                     <CarouselNext />
                 </Carousel>
+            </div>
+        </div>
+    )
+}
+
+
+export const ProductImagesSkeleton = () => {
+    return (
+        <div className="w-full">
+            <div className="border border-gray-400 w-full max-w-[350px] mx-auto rounded-md flex items-center justify-center p-2">
+                <Skeleton className="h-[300px] w-[300px] rounded-lg" />
+            </div>
+            <div className="w-full px-2 mt-3">
+                <div className="w-full max-w-sm mx-auto">
+                    <div className="flex space-x-2">
+                        {[...Array(4)].map((_, index) => (
+                            <div key={index} className="p-1 basis-1/2 sm:basis-1/3 md:basis-1/3 lg:basis-1/4">
+                                <Skeleton className="w-[70px] h-[70px] rounded-lg" />
+                            </div>
+                        ))}
+                    </div>
+                </div>
             </div>
         </div>
     )

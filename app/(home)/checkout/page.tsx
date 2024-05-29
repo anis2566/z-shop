@@ -1,12 +1,14 @@
 "use client";
 
-import { GET_USER_ADDRESS } from "@/actions/address.action";
-import { CardTitle, CardHeader, CardContent, Card } from "@/components/ui/card";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { OrderSchema } from "@/schema/order";
+import { CreditCard, HandCoins, PlusCircle } from "lucide-react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+
 import {
   Form,
   FormControl,
@@ -16,10 +18,8 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { calculateDeliveryFee, cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import { CreditCard, HandCoins, PlusCircle } from "lucide-react";
 import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible";
 import { Input } from "@/components/ui/input";
 import {
@@ -29,12 +29,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useEffect, useState } from "react";
-import { Textarea } from "@/components/ui/textarea";
-import { useCart } from "@/store/use-cart";
 import { Separator } from "@/components/ui/separator";
+import { CardTitle, CardHeader, CardContent, Card } from "@/components/ui/card";
+import { Textarea } from "@/components/ui/textarea";
+
+import { GET_USER_ADDRESS } from "@/actions/address.action";
+import { calculateDeliveryFee, cn } from "@/lib/utils";
+import { useCart } from "@/store/use-cart";
+import { OrderSchema } from "@/schema/order";
 import { CREATE_ORDER } from "@/actions/order.action";
-import { toast } from "sonner";
+import { useConfettiStore } from "@/hooks/use-confetti";
 
 type Division = {
   id: string;
@@ -44,7 +48,9 @@ type Division = {
 const Checkout = () => {
   const [divisions, setDivisions] = useState<Division[]>([]);
 
-  const { cart } = useCart()
+  const { cart, resetCart } = useCart()
+  const {onOpen} = useConfettiStore()
+  const router = useRouter()
 
   const total = cart.reduce((acc, curr) => {
     return acc + (curr.price * curr.quantity)
@@ -88,7 +94,9 @@ const Checkout = () => {
   const { mutate: createOrder, isPending } = useMutation({
     mutationFn: CREATE_ORDER,
     onSuccess: (data) => {
-      // router.push("/dashboard/category")
+      onOpen()
+      router.push("/account/orders")
+      resetCart()
       toast.success(data.success, {
         id: "create-order"
       });

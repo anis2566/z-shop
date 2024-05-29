@@ -71,9 +71,8 @@ export const OrderProductSchema = z.object({
   quantity: z.number().min(1, {
     message: "required",
   }),
-  size: z.string().optional(),
-  color: z.string().optional(),
+  size: z.string().optional().nullable(),
+  color: z.string().optional().nullable(),
 });
 
-
-export type OrderProductSchemaType = z.infer<typeof OrderProductSchema>
+export type OrderProductSchemaType = z.infer<typeof OrderProductSchema>;

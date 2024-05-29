@@ -1,12 +1,23 @@
+"use client"
+
 import Image from "next/image"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { useQuery } from "@tanstack/react-query"
+import { GET_UNREVIEWED_PRODUCT } from "@/actions/user.action"
+import { Skeleton } from "@/components/ui/skeleton"
 
-import { db } from "@/lib/db"
+export const Review = () => {
 
-export const Review = async () => {
-    const products = await db.product.findMany()
+    const {data:products, isFetching} = useQuery({
+        queryKey: ["unreviewd-products"],
+        queryFn: async () => {
+            const res = await GET_UNREVIEWED_PRODUCT()
+            return res.products
+        },
+        staleTime: 60 * 60 * 1000
+    })
 
     return (
         <Card>
@@ -17,7 +28,24 @@ export const Review = async () => {
             <CardContent>
                 <div className="grid gap-4">
                     {
-                        products.map(product => (
+                        isFetching ? 
+                        Array.from({length: 2}, (_, i) => (
+                            <div key={i} className="space-y-2">
+                                <div className="flex items-center gap-4">
+                                    <Skeleton className="rounded-md h-[64px] w-[64px]" />
+                                    <div>
+                                        <Skeleton className="h-4 rounded w-32" />
+                                        <Skeleton className="h-3 rounded w-24 mt-2" />
+                                    </div>
+                                    <div className="ml-auto hidden md:flex">
+                                        <Button size="sm" variant="outline" disabled>
+                                            Write Review
+                                        </Button>
+                                    </div>
+                                </div>
+                            </div>
+                        )) :
+                        products && products.map(product => (
                             <div key={product.id} className="space-y-2">
                                 <div className="flex items-center gap-4">
                                     <Image
@@ -52,3 +80,4 @@ export const Review = async () => {
         </Card>
     )
 }
+
