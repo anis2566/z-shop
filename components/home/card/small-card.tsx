@@ -1,16 +1,17 @@
-import { Skeleton } from "@/components/ui/skeleton"
 import { Product } from "@prisma/client"
 import { StarIcon } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 
+import { Skeleton } from "@/components/ui/skeleton"
+
 interface Props {
     product: Product
 }
 
-export const SmallCard = ({product}:Props) => {
+export const SmallCard = ({ product }: Props) => {
     return (
-        <Link href={`/shop/${product.id}`}  className="w-full flex items-center gap-x-3 border border-gray-200 hover:border-gray-500 p-2 rounded-md">
+        <Link href={`/shop/${product.id}`} className="w-full flex items-center gap-x-3 border border-gray-200 hover:border-gray-500 p-2 rounded-md">
             <div className="aspect-square w-full max-w-[100px] border-r border-gray-200 rounded-md p-2">
                 <Image
                     alt="Thumbnail"
@@ -22,7 +23,7 @@ export const SmallCard = ({product}:Props) => {
             </div>
             <div className="flex flex-col justify-between min-h-[100px]">
                 <div>
-                    <p className="text-md font-semibold">{product.name.slice(0,40)}...</p>
+                    <p className="text-md font-semibold">{product.name.slice(0, 40)}...</p>
                     <div className="flex items-center gap-x-4">
                         <div className="flex items-center gap-0.5">
                             <StarIcon className="w-4 h-4 fill-amber-500 text-amber-500" />
@@ -51,16 +52,7 @@ export const SmallCardSkeleton = () => {
             <div className="flex flex-col justify-between min-h-[100px] w-full">
                 <div>
                     <Skeleton className="h-6 w-3/4 mb-2" />
-                    <div className="flex items-center gap-x-4">
-                        <div className="flex items-center gap-0.5">
-                            <Skeleton className="w-4 h-4" />
-                            <Skeleton className="w-4 h-4" />
-                            <Skeleton className="w-4 h-4" />
-                            <Skeleton className="w-4 h-4" />
-                            <Skeleton className="w-4 h-4" />
-                        </div>
-                        <Skeleton className="h-4 w-8" />
-                    </div>
+                    <Skeleton className="w-2/4 h-4" />
                 </div>
                 <Skeleton className="h-6 w-1/2" />
             </div>

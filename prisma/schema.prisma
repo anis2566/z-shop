@@ -24,6 +24,7 @@ model User {
   seller Seller?
   address Address[]
   orders Order[]
+  reviews Review[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -119,9 +120,12 @@ model Product {
   featureTitle String?
   startDeal DateTime?
   endDeal DateTime?
+  averageRating    Float      @default(0.0)
+  ratingCount      Int        @default(0)
   
   genre String[]
   colors String[] @default([])
+  reviews Review[]
 
   categoryId String
   category  Category @relation(fields: [categoryId], references: [id])
@@ -254,6 +258,21 @@ model OrderProduct {
 
   orderId String
   order Order @relation(fields: [orderId], references: [id])
+
+  productId String
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Review {
+  id String @id @default(uuid())
+  content String
+  rating Int
+
+  userId String
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   productId String
   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)

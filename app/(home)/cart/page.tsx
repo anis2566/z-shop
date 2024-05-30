@@ -1,8 +1,8 @@
 "use client"
 
-import { MinusIcon, PlusIcon, TrashIcon } from "lucide-react"
+import { MinusIcon, PlusIcon, TrashIcon, Truck } from "lucide-react"
 import Image from "next/image"
-import { SignedIn, SignedOut, SignInButton  } from "@clerk/nextjs"
+import { SignedIn, SignedOut, SignInButton } from "@clerk/nextjs"
 import toast from "react-hot-toast"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -11,11 +11,11 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
 } from "@/components/ui/select"
 
 import { useCart } from "@/store/use-cart"
@@ -32,17 +32,17 @@ const Cart = () => {
     const totalItems = cart.reduce((acc, curr) => {
         return acc + curr.quantity
     }, 0)
-    
+
     const total = cart.reduce((acc, curr) => {
         return acc + (curr.price * curr.quantity)
     }, 0)
-    
+
     const handleCheckout = () => {
         router.push("/checkout")
     }
 
     return (
-        <div className="w-full space-y-6 p-3 mt-6">
+        <div className="w-full max-w-screen-xl mx-auto bg-white p-4 space-y-6 p-3 mt-6">
             <div className="grid flex-1 items-start gap-4 md:gap-8 lg:grid-cols-3 xl:grid-cols-3">
                 <div className="lg:col-span-2">
                     <Card>
@@ -59,13 +59,13 @@ const Cart = () => {
                                         <div className="flex flex-col sm:flex-row justify-between p-4" key={index}>
                                             <div className="flex flex-col md:flex-row gap-x-2">
                                                 <div className="aspect-square w-full max-w-[100px]">
-                                                <Image
-                                                    alt="Thumbnail"
-                                                    className="aspect-object object-cover rounded-lg"
-                                                    height="100"
-                                                    src={item.product.featureImageUrl}
-                                                    width="100"
-                                                />
+                                                    <Image
+                                                        alt="Thumbnail"
+                                                        className="aspect-object object-cover rounded-lg"
+                                                        height="100"
+                                                        src={item.product.featureImageUrl}
+                                                        width="100"
+                                                    />
                                                 </div>
                                                 <div className="space-y-2">
                                                     <h3 className="font-semibold text-base">{item.product.name}</h3>
@@ -140,7 +140,41 @@ const Cart = () => {
                         </CardContent>
                     </Card>
                 </div>
-                <div>
+                <div className="space-y-6">
+                    <Card className="bg-gray-100">
+                        <CardHeader>
+                            <CardTitle>Delivery Info</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-2">
+                            <div className="flex items-center gap-x-3">
+                                <Truck className="w-5 h-5" />
+                                <p> 
+                                    <span className="font-semibold">
+                                        Inside Dhaka: {" "}
+                                    </span> 
+                                    60 TK (1-2 days)
+                                </p>
+                            </div>
+                            <div className="flex items-center gap-x-3">
+                                <Truck className="w-5 h-5" />
+                                <p> 
+                                    <span className="font-semibold">
+                                        Outside Dhaka: {" "}
+                                    </span> 
+                                    120 TK (3-5 days)
+                                </p>
+                            </div>
+                            <div className="flex items-center gap-x-3">
+                                <Truck className="w-5 h-5" />
+                                <p> 
+                                    <span className="font-semibold">
+                                        Dhaka Sub Area: {" "}
+                                    </span> 
+                                    100 TK (2-3 days)
+                                </p>
+                            </div>
+                        </CardContent>
+                    </Card>
                     <Card className="flex flex-col">
                         <CardHeader className="pb-4">
                             <CardTitle>Cart Summary</CardTitle>
@@ -151,13 +185,13 @@ const Cart = () => {
                                     <div>Items {totalItems}</div>
                                     <div className="font-semibold">{total}</div>
                                 </div>
-                                 <div className="flex items-center justify-between gap-2 border-t">
+                                <div className="flex items-center justify-between gap-2 border-t">
                                     <div>Vat & Taxes</div>
                                     <div className="font-semibold">0</div>
                                 </div>
                             </div>
                         </CardContent>
-                        <CardFooter className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between p-4">
+                        <CardFooter className="flex flex-col gap-2 mt-3 md:flex-row md:items-center md:justify-between p-4">
                             <div className="flex flex-col gap-1 text-sm">
                                 <div className="flex items-center gap-2">
                                     Total

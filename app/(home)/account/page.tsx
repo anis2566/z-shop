@@ -20,7 +20,7 @@ import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Skeleton } from "@/components/ui/skeleton"
 
-import { Wishlist } from "@/components/home/account/wishlist"
+import { Wishlist } from "@/components/home/navbar/wishlist"
 import { Review } from "@/components/home/account/review"
 import { getUser } from "@/service/user.service"
 import { GET_USER_ORDER } from "@/actions/order.action"

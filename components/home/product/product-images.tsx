@@ -43,7 +43,7 @@ export const ProductImages = ({images, featureImage}:ProductImagesProps) => {
                 )}
             </div>
             <div className="w-full px-2 mt-3">
-                <Carousel className="w-full max-w-sm mx-auto">
+                <Carousel className="w-full max-w-sm mx-auto relative">
                     <CarouselContent className="">
                         {[featureImage, ...images].map((image, index) => {
                             const active = image === activeImage
@@ -64,8 +64,8 @@ export const ProductImages = ({images, featureImage}:ProductImagesProps) => {
                             )}
                         )}
                     </CarouselContent>
-                    <CarouselPrevious />
-                    <CarouselNext />
+                    <CarouselPrevious className="absolute -left-3" />
+                    <CarouselNext className="absolute -right-3" />
                 </Carousel>
             </div>
         </div>

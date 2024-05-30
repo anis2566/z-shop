@@ -1,16 +1,24 @@
 "use client"
 
-import { Separator } from "@/components/ui/separator"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useQuery } from "@tanstack/react-query"
 
 import { Skeleton } from "@/components/ui/skeleton"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import {
+    Breadcrumb,
+    BreadcrumbItem,
+    BreadcrumbLink,
+    BreadcrumbList,
+    BreadcrumbPage,
+    BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb"
 
 import { Preview } from "@/components/preview"
 import { ProductInfo, ProductInfoSkeleton } from "@/components/home/product/product-details"
 import { ProductImages, ProductImagesSkeleton } from "@/components/home/product/product-images"
 import { GET_PRODUCT } from "@/actions/product.action"
 import { Reviews } from "@/components/home/product/reviews"
+import { RelatedProduct } from "@/components/home/product/related-product"
 
 
 const ProductDetails = ({ params }: { params: { productId: string } }) => {
@@ -26,8 +34,25 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
 
 
     return (
-        <div className="w-full px-3 mt-7 space-y-6">
-            <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="w-full max-w-screen-xl mx-auto px-3 py-5 space-y-6">
+
+            <Breadcrumb>
+                <BreadcrumbList>
+                    <BreadcrumbItem>
+                        <BreadcrumbLink href="/">Home</BreadcrumbLink>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator />
+                    <BreadcrumbItem>
+                        <BreadcrumbLink href="/shop">Shop</BreadcrumbLink>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator />
+                    <BreadcrumbItem>
+                        <BreadcrumbPage>{product?.name}</BreadcrumbPage>
+                    </BreadcrumbItem>
+                </BreadcrumbList>
+            </Breadcrumb>
+
+            <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-4 bg-white py-3">
                 {
                     isFetching ? (
                         <>
@@ -44,32 +69,34 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
                 }
             </div>
 
-            <Separator />
+            <div className="bg-white py-3">
+                <Tabs defaultValue="description" className="w-full flex flex-col items-center mt-2">
+                    <TabsList className="w-full max-w-[400px] mx-auto">
+                        <TabsTrigger value="description">Description</TabsTrigger>
+                        <TabsTrigger value="reveiws">Reveiws</TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="description" className="w-full max-w-[1200px] mx-auto">
+                        {
+                            isFetching ? (
+                                <div className="space-y-3">
+                                    <Skeleton className="h-10 w-1/2" />
+                                    <Skeleton className="h-10 w-1/2" />
+                                    <Skeleton className="h-10 w-1/2" />
+                                </div>
+                            ) : (
+                                <Preview value={product?.description || ""} />
+                            )
+                        }
+                    </TabsContent>
+                    <TabsContent value="reveiws" className="w-full max-w-[1200px] mx-auto">
+                        {
+                            product && <Reviews productId={params.productId} product={product} />
+                        }
+                    </TabsContent>
+                </Tabs>
+            </div>
 
-            <Tabs defaultValue="description" className="w-full flex flex-col items-center mt-2">
-                <TabsList className="w-full max-w-[400px] mx-auto">
-                    <TabsTrigger value="description">Description</TabsTrigger>
-                    <TabsTrigger value="reveiws">Reveiws</TabsTrigger>
-                </TabsList>
-                <TabsContent value="description" className="w-full max-w-[1200px] mx-auto">
-                    {
-                        isFetching ? (
-                            <div className="space-y-3">
-                                <Skeleton className="h-10 w-1/2" />
-                                <Skeleton className="h-10 w-1/2" />
-                                <Skeleton className="h-10 w-1/2" />
-                            </div>
-                        ) : (
-                            <Preview value={product?.description || ""} />
-                        )
-                    }
-                </TabsContent>
-                <TabsContent value="reveiws" className="w-full max-w-[1200px] mx-auto">
-                    <Reviews />
-                </TabsContent>
-            </Tabs>
-
-            {/* <RelatedProducts /> */}
+            <RelatedProduct />
         </div>
     )
 }

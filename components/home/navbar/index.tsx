@@ -1,16 +1,25 @@
-import { NavMenu } from "../nav-menu";
-import { NavbarCategory } from "./nav-category";
-import { NavbarNav } from "./navbar-nav";
+import { Menu } from "lucide-react"
 
+import { Button } from "@/components/ui/button"
 
-export function Navbar() {
-  return (
-    <div className="hidden md:flex w-full max-w-screen-2xl mx-auto py-2 px-4 border-b border-gray-200 sticky top-0 left-0 z-40 bg-white">
-      <div className="w-full flex items-center justify-between">
-        <NavbarCategory />
-        <NavbarNav />
-        <NavMenu />
-      </div>
-    </div>
-  )
+import { Logo } from "@/components/logo"
+import { Search } from "./search"
+import { NavMenu } from "./nav-menu"
+import { NavDrawer } from "./drawer"
+
+export const Navbar = () => {
+    return (
+        <div className="w-full bg-white border-b-1 border-gray-200 py-3 px-4 sticky top-0 left-0 z-50">
+            <div className="w-full max-w-screen-xl mx-auto flex items-center justify-between gap-x-3">
+                <NavDrawer>
+                    <Button variant="ghost" size="icon" className="sm:hidden">
+                        <Menu className="w-5 h-5" />
+                    </Button>
+                </NavDrawer>
+                <Logo callbackUrl="/" />
+                <Search />
+                <NavMenu />
+            </div>
+        </div>
+    )
 }

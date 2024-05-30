@@ -1,34 +1,21 @@
-"use client"
+import { Popcorn } from "lucide-react"
 
-import { GET_POPULAR_PRODUCTS } from "@/actions/product.action";
-import { useQuery } from "@tanstack/react-query"
-import { ProductCard, ProductCardSkeleton } from "../card/product-card";
+import { Button } from "@/components/ui/button"
 
-export function PopularProducts() {
-  const {data:products, isFetching} = useQuery({
-    queryKey: ["get-popular"],
-    queryFn: async () => {
-      const { products } = await GET_POPULAR_PRODUCTS();
-      return products;
-    },
-    staleTime: 60 * 60 * 1000
-  })
+import { Slider } from "./slider"
 
+export const PopularProducts = () => {
+  
   return (
-      <div className="w-full px-4 space-y-5">
-          <h1 className="text-xl md:text-2xl font-bold text-slate-600">Popular Products</h1>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 justify-center gap-x-3 gap-y-4">
-        {
-            isFetching ? (
-                Array.from({ length: 5 }).map((_, index) => (
-                    <ProductCardSkeleton key={index} />
-                ))
-            ) :         
-            products && products.map(product => (
-                <ProductCard key={product.id} product={product} />
-            ))
-        }
+    <div className="w-full max-w-screen-xl mx-auto bg-white p-3 space-y-3">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-x-2">
+          <Popcorn className="w-7 h-7 text-primary" />
+          <h1 className="text-xl font-semibold text-slate-700">Popular Products</h1>
+        </div>
+        <Button className="rounded-full">See All</Button>
       </div>
+      <Slider />
     </div>
   )
 }
