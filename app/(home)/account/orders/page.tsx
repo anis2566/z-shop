@@ -1,9 +1,12 @@
+"use client"
+
+import { GET_USER_ORDER } from "@/actions/order.action"
 import { Header } from "@/components/home/account/orders/header"
 import { OrderList } from "@/components/home/account/orders/order-list"
 import { PaginationComp } from "@/components/pagination-comp"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { db } from "@/lib/db"
-import { getUser } from "@/service/user.service"
+import { useQuery } from "@tanstack/react-query"
+import { OrderSkeleton } from "../page"
 
 interface Props {
     searchParams: {
@@ -13,43 +16,18 @@ interface Props {
     }
   };
 
-const Orders = async ({searchParams}:Props) => {
-    const {status} = searchParams
-    const itemsPerPage = parseInt(searchParams.perPage) || 5;  
-    const currentPage = parseInt(searchParams.page) || 1;
-
-    const {userId} = await getUser()
-
-    const orders = await db.order.findMany({
-        where: {
-            userId,
-            ...(status !== "all" && {status})
+const Orders = ({searchParams}:Props) => {
+    const {page, perPage, status} = searchParams;
+    
+    const { data:orders, error, isLoading } = useQuery({
+        queryKey: ["user-orders", page, perPage, status],
+        queryFn: async () => {
+            const res = await GET_USER_ORDER({ page, perPage, status })
+            return res.orders
         },
-        include: {
-            products: {
-                include: {
-                    product: {
-                        select: {
-                            featureImageUrl: true
-                        }
-                    }
-                }
-            }
-        },
-        orderBy: {
-            createdAt: "desc"
-        },
-        skip: (currentPage - 1) * itemsPerPage,
-        take: itemsPerPage,
     })
-
-    const totalOrder = await db.order.count({
-        where: {
-            userId
-        }
-    })
-
-    const totalPage = totalOrder / itemsPerPage
+    
+    const totalPage = 4
 
     return (
         <Card className="flex-1">
@@ -59,7 +37,12 @@ const Orders = async ({searchParams}:Props) => {
             </CardHeader>
             <CardContent className="space-y-4">
                 <Header />
-                <OrderList orders={orders} />
+                {
+                    isLoading ? 
+                    <OrderSkeleton />
+                    : 
+                    orders && <OrderList orders={orders} />
+                }
                 <PaginationComp totalPage={totalPage} />
             </CardContent>
         </Card>

@@ -1,5 +1,9 @@
+"use client"
+
 import { ClerkLoaded, ClerkLoading, SignOutButton, SignedOut, SignedIn, SignInButton } from "@clerk/nextjs"
 import {User, UserCog, MapPinned, Heart, LogOut, Loader2} from "lucide-react"
+import { User as PrismaUser } from "@prisma/client"
+import { useEffect, useState } from "react"
 import Link from "next/link"
 
 import {
@@ -11,11 +15,28 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
-import { currentUser } from "@clerk/nextjs/server"
+
+import { getUser } from "@/service/user.service"
 
 
-export const Account = async () => {
-    const user = await currentUser()
+export const Account = () => {
+    const [user, setUser] = useState<PrismaUser | null>();
+    const [isClient, setIsClient] = useState(false);
+
+    useEffect(() => {
+        const fetchUser = async () => {
+          const { user } = await getUser();
+          setUser(user);
+        };
+    
+        fetchUser();
+        setIsClient(true);
+      }, []);
+
+      if (!isClient) {
+        return null;
+      }
+
     return (
         <div>
             <SignedOut>
@@ -23,14 +44,14 @@ export const Account = async () => {
                 <Loader2 className="w-5 h-5 animate-spin" />
               </ClerkLoading>
                 <SignInButton mode="modal">
-                    <Button variant="outline" size="icon">
+                    <Button variant="outline" size="icon" asChild>
                         <User className="h-[1.2rem] w-[1.2rem] dark:text-white" />
                         <span className="sr-only">Open Login</span>
                     </Button>
                 </SignInButton >
             </SignedOut>
 
-            <SignedIn>
+            <SignedIn >
                 <ClerkLoading>
                     <Loader2 className="w-5 h-5 animate-spin" />
                 </ClerkLoading>
@@ -39,7 +60,7 @@ export const Account = async () => {
                         <DropdownMenuTrigger asChild>
                             <Avatar>
                                 <AvatarImage src={user?.imageUrl} />
-                                <AvatarFallback>{user?.firstName?.charAt(0)}</AvatarFallback>
+                                <AvatarFallback>{user?.name.charAt(0)}</AvatarFallback>
                             </Avatar>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">

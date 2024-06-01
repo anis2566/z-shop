@@ -95,7 +95,7 @@ const Checkout = () => {
     mutationFn: CREATE_ORDER,
     onSuccess: (data) => {
       onOpen()
-      router.push("/account/orders")
+      router.push(`/invoice/${data?.order?.id}`)
       resetCart()
       toast.success(data.success, {
         id: "create-order"
@@ -128,7 +128,7 @@ const Checkout = () => {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="mx-auto px-4 py-12"
+        className="w-full max-w-screen-xl mx-auto p-4 my-6 bg-white"
       >
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12">
           <div className="md:col-span-2 space-y-5">

@@ -1,9 +1,8 @@
 "use client"
 
-import Image from "next/image"
 import { format } from "date-fns"
 import Link from "next/link"
-import { Eye } from "lucide-react"
+import { Eye, ShoppingCart } from "lucide-react"
 import { useQuery } from "@tanstack/react-query"
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -20,27 +19,27 @@ import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Skeleton } from "@/components/ui/skeleton"
 
-import { Wishlist } from "@/components/home/navbar/wishlist"
 import { Review } from "@/components/home/account/review"
-import { getUser } from "@/service/user.service"
 import { GET_USER_ORDER } from "@/actions/order.action"
 import { cn } from "@/lib/utils"
+import { GET_USER_DASHBOARD_DATA } from "@/actions/user.action"
+import { Wishlist } from "@/components/home/account/wishlist"
 
 const Account = () => {
 
-    const { data: user, isFetching } = useQuery({
-        queryKey: ["get-user"],
+    const {data:dashbaordData, isFetching} = useQuery({
+        queryKey: ["dashboard-data"],
         queryFn: async () => {
-            const res = await getUser()
-            return res.user
+            const res = await GET_USER_DASHBOARD_DATA()
+            return res
         },
         staleTime: 60 * 60 * 1000
     })
 
     const { data: orders, isFetching: isFetchingOrders } = useQuery({
-        queryKey: ["user-orders"],
+        queryKey: ["user-orders-dashboard"],
         queryFn: async () => {
-            const res = await GET_USER_ORDER()
+            const res = await GET_USER_ORDER({page: "1", perPage: "3", status: "all"})
             return res.orders
         },
         staleTime: 60 * 60 * 1000
@@ -48,30 +47,56 @@ const Account = () => {
 
     return (
         <div className="space-y-10 flex-1">
-            {isFetching ? (
-                <AccountSkeleton />
-            ) : user ? (
-                <Card className="w-full">
-                    <CardContent className="flex flex-col md:flex-row items-center gap-4 p-4 md:p-6">
-                        <Image
-                            alt="Avatar"
-                            className="rounded-full"
-                            height="60"
-                            src={user?.imageUrl || ""}
-                            style={{
-                                aspectRatio: "100/100",
-                                objectFit: "cover",
-                            }}
-                            width="60"
-                        />
-                        <div className="grid gap-1 text-sm md:gap-2">
-                            <div className="font-semibold text-xl">{`${user.name?.split(" ")[0]}`} <span className="text-primary">{user.name?.split(" ")[1]}</span></div>
-                            <div>{user.email}</div>
-                        </div>
+            <div className="grid gap-4 md:grid-cols-3">
+                <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">
+                            Total Orders
+                        </CardTitle>
+                        <ShoppingCart className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                        {isFetching ? (
+                            <Skeleton className="h-6 w-12" />
+                        ) : (
+
+                            <div className="text-xl font-bold">{dashbaordData?.totalOrders}</div>
+                        )}
                     </CardContent>
                 </Card>
-            ) : null}
+                <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">
+                            Pending Orders
+                        </CardTitle>
+                        <ShoppingCart className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                        {isFetching ? (
+                            <Skeleton className="h-6 w-12" />
+                        ) : (
 
+                            <div className="text-xl font-bold">{dashbaordData?.pendingOrder}</div>
+                        )}
+                    </CardContent>
+                </Card>
+                <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">
+                            Delivered Orders
+                        </CardTitle>
+                        <ShoppingCart className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                        {isFetching ? (
+                            <Skeleton className="h-6 w-12" />
+                        ) : (
+
+                            <div className="text-xl font-bold">{dashbaordData?.deliveredOrder}</div>
+                        )}
+                    </CardContent>
+                </Card>
+            </div>
 
             {
                 isFetchingOrders ? <OrderSkeleton /> :
@@ -141,8 +166,6 @@ const Account = () => {
                     )
             }
 
-
-
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <Wishlist />
                 <Review />
@@ -153,23 +176,7 @@ const Account = () => {
 
 export default Account
 
-
-const AccountSkeleton = () => {
-    return (
-        <Card className="w-full">
-            <CardContent className="flex flex-col md:flex-row items-center gap-4 p-4 md:p-6">
-                <Skeleton className="h-[60px] w-[60px] rounded-full" />
-                <div className="grid gap-1 text-sm md:gap-2">
-                    <Skeleton className="h-4 w-40" />
-                    <Skeleton className="h-4 w-20" />
-                </div>
-            </CardContent>
-        </Card>
-    )
-}
-
-
-const OrderSkeleton = () => {
+export const OrderSkeleton = () => {
     return (
         <Card>
             <CardHeader>
@@ -189,7 +196,7 @@ const OrderSkeleton = () => {
                     </TableHeader>
                     <TableBody>
                         {
-                            Array.from({ length: 3 }, (_, i) => (
+                            Array.from({ length: 5 }, (_, i) => (
                                 <TableRow className="p-0" key={i}>
                                     <TableCell className="py-1 flex justify-center gap-x-2">
                                         <Skeleton className="w-10 h-10 rounded-full" />

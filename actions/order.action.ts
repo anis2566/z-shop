@@ -141,6 +141,7 @@ export const CREATE_ORDER = async ({ order, products }: CreateOrder) => {
 
   return {
     success: "Order placed",
+    order: newOrder
   };
 };
 
@@ -242,30 +243,43 @@ export const UPDATE_ORDER = async ({
 };
 
 
+type UserOrders = {
+  page: string | null
+  perPage: string | null
+  status: string;
+}
 
-export const GET_USER_ORDER = async () => {
+export const GET_USER_ORDER = async (values: UserOrders) => {
+  const {status} = values
+  const itemsPerPage = parseInt(values.perPage || "5");  
+  const currentPage = parseInt(values.page || "1");
+
   const {userId} = await getUser()
 
   const orders = await db.order.findMany({
-    where: {
-      userId
-    },
-    include: {
-      products: {
+        where: {
+            userId,
+            ...(status !== "all" && {status})
+        },
         include: {
-          product: {
-            select: {
-              featureImageUrl: true
+            products: {
+                include: {
+                    product: {
+                        select: {
+                            featureImageUrl: true
+                        }
+                    }
+                }
             }
-          }
-        }
-      }
-    },
-    orderBy: {
-      createdAt: "desc"
-    },
-    take: 3
-  })
+        },
+        orderBy: {
+            createdAt: "desc"
+        },
+        skip: (currentPage - 1) * itemsPerPage,
+        take: itemsPerPage,
+    })
+
+    console.log(orders)
 
   return {
     orders

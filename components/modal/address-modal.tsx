@@ -1,6 +1,6 @@
 "use client"
 
-import { useMutation } from "@tanstack/react-query"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 
 import {
@@ -19,10 +19,18 @@ import { DELETE_ADDRESS } from "@/actions/address.action"
 
 export const AddressModal = () => {
     const { open, onClose, addressId } = useAddress()
+
+    const queryClient = useQueryClient()
     
     const {mutate: deleteAddress, isPending} = useMutation({
         mutationFn: DELETE_ADDRESS,
         onSuccess: (data) => {
+            queryClient.invalidateQueries({
+                queryKey: ["user-address"],
+                
+            })
+            queryClient.refetchQueries({ queryKey: ["user-address"] });
+            onClose()
             toast.success(data?.success, {
                 id: "delete-address"
             });
@@ -42,7 +50,7 @@ export const AddressModal = () => {
     }
 
     return (
-        <AlertDialog open={open} onOpenChange={onClose}>
+        <AlertDialog open={open}>
             <AlertDialogContent>
                 <AlertDialogHeader>
                 <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
@@ -51,7 +59,7 @@ export const AddressModal = () => {
                 </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                <AlertDialogCancel disabled={isPending}>Cancel</AlertDialogCancel>
+                <AlertDialogCancel disabled={isPending} onClick={onClose}>Cancel</AlertDialogCancel>
                 <AlertDialogAction onClick={handleDelete} disabled={isPending}>Continue</AlertDialogAction>
                 </AlertDialogFooter>
             </AlertDialogContent>

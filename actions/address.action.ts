@@ -31,8 +31,6 @@ export const CREATE_ADDRESS = async (values: AddressShemaType) => {
         }
     })
 
-    revalidatePath("/account/address")
-
     return {
         success: "Address saved"
     }
@@ -73,8 +71,6 @@ export const DELETE_ADDRESS = async (id: string) => {
             id
         }
     })
-
-    revalidatePath("/account/address")
 
     return {
         success: "Address deleted"

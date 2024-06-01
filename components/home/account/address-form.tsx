@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { useEffect, useState } from "react"
-import { useMutation } from "@tanstack/react-query"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
@@ -38,6 +38,8 @@ type Division = {
 export const AddressForm = () => {
     const [divisions, setDivisions] = useState<Division[]>([])
 
+    const queryClient = useQueryClient()
+
     useEffect(() => {
         const fetchDivisions = async () => {
             const res = await fetch("https://bdapi.vercel.app/api/v.1/division");
@@ -66,6 +68,11 @@ export const AddressForm = () => {
         mutationFn: CREATE_ADDRESS,
         onSuccess: (data) => {
             form.reset()
+            queryClient.invalidateQueries({
+                queryKey: ["user-address"],
+                
+            })
+            queryClient.refetchQueries({ queryKey: ["user-address"] });
             toast.success(data?.success, {
                 id: "create-address"
             });
