@@ -1,7 +1,7 @@
 "use client"
 
-import {useState} from "react"
-import {StarIcon} from "lucide-react"
+import { useState } from "react"
+import { StarIcon } from "lucide-react"
 import { MinusIcon, PlusIcon, HeartIcon } from "lucide-react"
 import Image from "next/image"
 import { toast } from "sonner"
@@ -16,41 +16,47 @@ import { useProduct } from "@/store/use-product"
 import { ProductWithFeature } from "@/@types"
 import { useCart } from "@/store/use-cart"
 import { Skeleton } from "@/components/ui/skeleton"
+import { useWishlist } from "@/store/use-wishlist"
 
 interface Props {
     product: ProductWithFeature
 }
 
-export const ProductInfo = ({product}:Props) => {
+export const ProductInfo = ({ product }: Props) => {
     const [quantity, setQuantity] = useState<number>(1)
     const [color, setColor] = useState<string>("")
     const [size, setSize] = useState<string>("")
 
     const { onClose } = useProduct()
-    const {addToCart} = useCart()
-
+    const { addToCart } = useCart()
+    const { addToWishlist } = useWishlist()
 
     const increamentQuantity = () => {
-        if(product.totalStock && quantity < product.totalStock) {
+        if (product.totalStock && quantity < product.totalStock) {
             setQuantity(prev => prev + 1)
         }
     }
 
     const decreamentQuantity = () => {
-        if(quantity > 1) {
+        if (quantity > 1) {
             setQuantity(prev => prev - 1)
         }
     }
 
     const handleAddToCart = () => {
-        addToCart({product, price: product.discountPrice || product.price, quantity, size, color})
+        addToCart({ product, price: product.discountPrice || product.price, quantity, size, color })
         onClose()
         toast.success("Added to cart")
     }
 
+    const handleAddToWishlist = () => {
+        addToWishlist(product)
+        toast.success("Added to wishlist")
+    }
+
     return (
         <div className="space-y-3">
-            {   
+            {
                 product.brand && (
                     <div className="flex items-center gap-x-2">
                         <Image
@@ -68,11 +74,11 @@ export const ProductInfo = ({product}:Props) => {
                 <h1 className="text-2xl font-bold text-slate-700">{product.name}</h1>
                 <div className="flex items-center gap-x-4">
                     <div className="flex items-center gap-0.5">
-                    <StarIcon className="w-4 h-4 fill-amber-500 text-amber-500" />
-                    <StarIcon className="w-4 h-4 fill-amber-500 text-amber-500" />
-                    <StarIcon className="w-4 h-4 fill-amber-500 text-amber-500" />
-                    <StarIcon className="w-4 h-4 fill-amber-500 text-amber-500" />
-                    <StarIcon className="w-4 h-4 fill-muted stroke-muted-foreground" />
+                        <StarIcon className="w-4 h-4 fill-amber-500 text-amber-500" />
+                        <StarIcon className="w-4 h-4 fill-amber-500 text-amber-500" />
+                        <StarIcon className="w-4 h-4 fill-amber-500 text-amber-500" />
+                        <StarIcon className="w-4 h-4 fill-amber-500 text-amber-500" />
+                        <StarIcon className="w-4 h-4 fill-muted stroke-muted-foreground" />
                     </div>
                     <p className="text-sm text-muted-foreground">(32 Reviews)</p>
                 </div>
@@ -93,17 +99,17 @@ export const ProductInfo = ({product}:Props) => {
                 <Badge variant="outline" className="bg-green-500 text-white">In Stock</Badge>
                 <p className="text-muted-foreground">({product.totalStock} remaining)</p>
             </div>
-            
+
             {product.colors?.length > 0 && (
                 <div className="grid">
                     <Label className="text-lg font-medium">Color</Label>
                     <div className="flex items-center gap-2">
-                        <RadioGroup className="flex items-center gap-2" onValueChange={(color:string) => setColor(color)} defaultValue={color || product.colors[0] || ""} id="size">
+                        <RadioGroup className="flex items-center gap-2" onValueChange={(color: string) => setColor(color)} defaultValue={color || product.colors[0] || ""} id="size">
                             {product.colors.map((color, i) => (
                                 <Label
-                                className="border cursor-pointer rounded-md p-2 flex items-center gap-2 [&:has(:checked)]:bg-gray-100 dark:[&:has(:checked)]:bg-gray-800"
-                                htmlFor={color}
-                                key={i}
+                                    className="border cursor-pointer rounded-md p-2 flex items-center gap-2 [&:has(:checked)]:bg-gray-100 dark:[&:has(:checked)]:bg-gray-800"
+                                    htmlFor={color}
+                                    key={i}
                                 >
                                     <RadioGroupItem id={color} value={color} />
                                     {color}
@@ -118,12 +124,12 @@ export const ProductInfo = ({product}:Props) => {
                 <div className="grid">
                     <Label className="text-lg font-medium">Size</Label>
                     <div className="flex items-center gap-2">
-                        <RadioGroup className="flex items-center gap-2" onValueChange={(size:string) => setSize(size)} defaultValue={color || product.stocks[0].size || ""} id="size">
+                        <RadioGroup className="flex items-center gap-2" onValueChange={(size: string) => setSize(size)} defaultValue={color || product.stocks[0].size || ""} id="size">
                             {product.stocks.map((stock, i) => (
                                 <Label
-                                className="border cursor-pointer rounded-md p-2 flex items-center gap-2 [&:has(:checked)]:bg-gray-100 dark:[&:has(:checked)]:bg-gray-800 uppercase"
-                                htmlFor={stock.id}
-                                key={i}
+                                    className="border cursor-pointer rounded-md p-2 flex items-center gap-2 [&:has(:checked)]:bg-gray-100 dark:[&:has(:checked)]:bg-gray-800 uppercase"
+                                    htmlFor={stock.id}
+                                    key={i}
                                 >
                                     <RadioGroupItem id={stock.id} value={stock.size || ""} />
                                     {stock.size}
@@ -151,7 +157,7 @@ export const ProductInfo = ({product}:Props) => {
 
             <div className="flex flex-col gap-2 min-[400px]:flex-row">
                 <Button size="lg" onClick={handleAddToCart}>Add to cart</Button>
-                <Button size="lg" variant="outline">
+                <Button size="lg" variant="outline" onClick={handleAddToWishlist}>
                     <HeartIcon className="w-4 h-4 mr-2" />
                     Add to wishlist
                 </Button>
@@ -174,7 +180,7 @@ export const ProductInfoSkeleton = () => {
             </div>
             <Skeleton className="h-10 w-24" />
             <Skeleton className="h-4 w-24" />
-                <Skeleton className="h-6 w-16" />
+            <Skeleton className="h-6 w-16" />
             <div className="flex flex-col gap-2 min-[400px]:flex-row">
                 <Skeleton className="h-10 w-32" />
                 <Skeleton className="h-10 w-32" />

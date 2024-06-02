@@ -212,3 +212,83 @@ export const GET_PRODUCT = async (id: string) => {
     product,
   };
 };
+
+type GetProducts = {
+  search: string;
+  category: string;
+  minPrice: string;
+  maxPrice: string;
+  brand: string;
+  sort: string;
+  page: string;
+};
+
+export const GET_PRODUCTS = async ({
+  search = "",
+  category,
+  minPrice,
+  maxPrice,
+  brand,
+  sort,
+  page,
+}: GetProducts) => {
+  const itemsPerPage = 20;
+  const currentPage = parseInt(page) || 1;
+  const searchWords = search.split(" ");
+
+  const products = await db.product.findMany({
+    where: {
+      AND: [
+        {
+          OR: searchWords.map((word) => ({
+            OR: [
+              { name: { contains: word, mode: "insensitive" } },
+              { category: { name: { contains: word, mode: "insensitive" } } },
+            ],
+          })),
+        },
+        { category: { name: category } },
+        { brand: { name: brand } },
+        ...(minPrice ? [{ price: { gte: parseInt(minPrice) } }] : []),
+        ...(maxPrice ? [{ price: { lte: parseInt(maxPrice) } }] : []),
+      ],
+    },
+    include: {
+      category: true,
+      stocks: true,
+      brand: true,
+    },
+    orderBy: {
+      ...(sort === "asc" && { createdAt: "asc" }),
+      ...(sort === "desc" && { createdAt: "desc" }),
+      ...(sort === "high-to-low" && { price: "desc" }),
+      ...(sort === "low-to-high" && { price: "asc" }),
+    },
+    skip: (currentPage - 1) * itemsPerPage,
+    take: itemsPerPage,
+  });
+
+  const totalProduct = await db.product.count({
+    where: {
+      AND: [
+        {
+          OR: searchWords.map((word) => ({
+            OR: [
+              { name: { contains: word, mode: "insensitive" } },
+              { category: { name: { contains: word, mode: "insensitive" } } },
+            ],
+          })),
+        },
+        { category: { name: category } },
+        { brand: { name: brand } },
+        ...(minPrice ? [{ price: { gte: parseInt(minPrice) } }] : []),
+        ...(maxPrice ? [{ price: { lte: parseInt(maxPrice) } }] : []),
+      ],
+    }
+  })
+
+  return {
+    products,
+    totalProduct
+  };
+};

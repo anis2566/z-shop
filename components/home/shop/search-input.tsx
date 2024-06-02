@@ -21,7 +21,7 @@ const formSchema = z.object({
   searchValue: z.string().optional()
 })
 
-export const Search = () => {
+export const SearchInput = () => {
     const router = useRouter()
     const searchParams = useSearchParams()
     
@@ -37,6 +37,7 @@ export const Search = () => {
             url: `/shop`,
             query: {
             search: values.searchValue,
+            category: searchParams.get("category"),
             }
         }, { skipEmptyString: true, skipNull: true });
         router.push(url)
@@ -44,7 +45,7 @@ export const Search = () => {
 
     return (
         <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="hidden md:flex w-full max-w-[500px] border border-primary p-1 relative rounded-md relative">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="w-[95%] sm:hidden mx-auto border border-primary p-1 mt-4 relative rounded-md relative">
                 <FormField
                     control={form.control}
                     name="searchValue"

@@ -99,7 +99,7 @@ const Account = () => {
             </div>
 
             {
-                isFetchingOrders ? <OrderSkeleton /> :
+                isFetchingOrders ? <OrderSkeleton limit={3} /> :
                     orders && (
                         <Card>
                             <CardHeader>
@@ -120,7 +120,7 @@ const Account = () => {
                                     <TableBody>
                                         {
                                             orders.map(order => (
-                                                <TableRow className="p-0">
+                                                <TableRow className="p-0" key={order.id}>
                                                     <TableCell className="py-1 flex justify-center gap-x-2">
                                                         {
                                                             order.products.map((item, i) => (
@@ -176,7 +176,7 @@ const Account = () => {
 
 export default Account
 
-export const OrderSkeleton = () => {
+export const OrderSkeleton = ({limit}:{limit:number}) => {
     return (
         <Card>
             <CardHeader>
@@ -196,7 +196,7 @@ export const OrderSkeleton = () => {
                     </TableHeader>
                     <TableBody>
                         {
-                            Array.from({ length: 5 }, (_, i) => (
+                            Array.from({ length: limit}, (_, i) => (
                                 <TableRow className="p-0" key={i}>
                                     <TableCell className="py-1 flex justify-center gap-x-2">
                                         <Skeleton className="w-10 h-10 rounded-full" />

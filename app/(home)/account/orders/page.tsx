@@ -1,11 +1,13 @@
 "use client"
 
+import { useQuery } from "@tanstack/react-query"
+
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+
 import { GET_USER_ORDER } from "@/actions/order.action"
 import { Header } from "@/components/home/account/orders/header"
 import { OrderList } from "@/components/home/account/orders/order-list"
 import { PaginationComp } from "@/components/pagination-comp"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { useQuery } from "@tanstack/react-query"
 import { OrderSkeleton } from "../page"
 
 interface Props {
@@ -39,7 +41,7 @@ const Orders = ({searchParams}:Props) => {
                 <Header />
                 {
                     isLoading ? 
-                    <OrderSkeleton />
+                    <OrderSkeleton limit={5} />
                     : 
                     orders && <OrderList orders={orders} />
                 }
