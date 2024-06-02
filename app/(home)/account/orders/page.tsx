@@ -8,7 +8,7 @@ import { GET_USER_ORDER } from "@/actions/order.action"
 import { Header } from "@/components/home/account/orders/header"
 import { OrderList } from "@/components/home/account/orders/order-list"
 import { PaginationComp } from "@/components/pagination-comp"
-import { OrderSkeleton } from "../page"
+import { OrderSkeleton } from "@/components/home/account/order-skeleton"
 
 interface Props {
     searchParams: {
