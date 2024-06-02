@@ -36,7 +36,7 @@ export const DailyBestDeal = () => {
                         ))
                         :
                         products?.map(product => (
-                            <BestDealCard product={product} />
+                            <BestDealCard product={product} key={product.id} />
                         ))
                 }
             </div>
